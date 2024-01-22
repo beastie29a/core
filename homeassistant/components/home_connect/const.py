@@ -17,6 +17,11 @@ BSH_REMOTE_START_ALLOWANCE_STATE = "BSH.Common.Status.RemoteControlStartAllowed"
 COOKING_LIGHTING = "Cooking.Common.Setting.Lighting"
 COOKING_LIGHTING_BRIGHTNESS = "Cooking.Common.Setting.LightingBrightness"
 
+REFRIGERATION_LIGHT_INTERNAL_POWER = "Refrigeration.Common.Setting.Light.Internal.Power"
+REFRIGERATION_LIGHT_INTERNAL_BRIGHTNESS = (
+    "Refrigeration.Common.Setting.Light.Internal.Brightness"
+)
+
 REFRIGERATION_SUPERMODEFREEZER = "Refrigeration.FridgeFreezer.Setting.SuperModeFreezer"
 REFRIGERATION_SUPERMODEREFRIGERATOR = (
     "Refrigeration.FridgeFreezer.Setting.SuperModeRefrigerator"

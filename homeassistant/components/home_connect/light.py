@@ -27,6 +27,8 @@ from .const import (
     COOKING_LIGHTING,
     COOKING_LIGHTING_BRIGHTNESS,
     DOMAIN,
+    REFRIGERATION_LIGHT_INTERNAL_BRIGHTNESS,
+    REFRIGERATION_LIGHT_INTERNAL_POWER,
 )
 from .entity import HomeConnectEntity
 
@@ -46,7 +48,12 @@ async def async_setup_entry(
         hc_api = hass.data[DOMAIN][config_entry.entry_id]
         for device_dict in hc_api.devices:
             entity_dicts = device_dict.get(CONF_ENTITIES, {}).get("light", [])
-            entity_list = [HomeConnectLight(**d) for d in entity_dicts]
+            entity_list = [
+                HomeConnectRefrigerationLight(**d)
+                if d.get("desc", None) == "RefrigerationLight"
+                else HomeConnectLight(**d)
+                for d in entity_dicts
+            ]
             entities += entity_list
         return entities
 
@@ -183,3 +190,52 @@ class HomeConnectLight(HomeConnectEntity, LightEntity):
                     (brightness.get(ATTR_VALUE) - 10) * 255 / 90
                 )
             _LOGGER.debug("Updated, new brightness: %s", self._attr_brightness)
+
+
+class HomeConnectRefrigerationLight(HomeConnectLight):
+    """Refrigerator Internal Light."""
+
+    def __init__(self, device, desc, ambient=None):
+        """Refrigeration Light for Home Connect."""
+        super().__init__(device, desc, ambient)
+        self._brightness_key = REFRIGERATION_LIGHT_INTERNAL_BRIGHTNESS
+        self._key = REFRIGERATION_LIGHT_INTERNAL_POWER
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Switch the light on, change brightness."""
+        if ATTR_BRIGHTNESS in kwargs:
+            _LOGGER.debug("Changing brightness for: %s", self.name)
+            brightness = round((kwargs[ATTR_BRIGHTNESS] * 100 + 128) / 256)
+            try:
+                await self.hass.async_add_executor_job(
+                    self.device.appliance.set_setting, self._brightness_key, brightness
+                )
+            except HomeConnectError as err:
+                _LOGGER.error("Error while trying set the brightness: %s", err)
+        else:
+            _LOGGER.debug("Switching light on for: %s", self.name)
+            try:
+                await self.hass.async_add_executor_job(
+                    self.device.appliance.set_setting, self._key, True
+                )
+            except HomeConnectError as err:
+                _LOGGER.error("Error while trying to turn on light: %s", err)
+
+    async def async_update(self) -> None:
+        """Update the light's status."""
+
+        self._attr_is_on = self.device.appliance.status.get(self._key, {}).get(
+            ATTR_VALUE, None
+        )
+        _LOGGER.debug("Updated, new power state: %s", self._attr_is_on)
+
+        brightness = self.device.appliance.status.get(self._brightness_key, {}).get(
+            ATTR_VALUE, None
+        )
+
+        if brightness:
+            brightness = round((brightness * 256 - 128) / 100)
+
+        self._attr_brightness = brightness
+
+        _LOGGER.debug("Updated, new brightness: %s", self._attr_brightness)

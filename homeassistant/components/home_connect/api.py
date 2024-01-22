@@ -239,6 +239,14 @@ class DeviceWithAmbientLight(HomeConnectDevice):
         return {ATTR_DEVICE: self, ATTR_DESC: "AmbientLight", ATTR_AMBIENT: True}
 
 
+class DeviceWithRefrigerationLight(HomeConnectDevice):
+    """Refrigeration Device that has lighting."""
+
+    def get_light_entity(self):
+        """Get a dictionary with info about the lighting."""
+        return {ATTR_DEVICE: self, ATTR_DESC: "RefrigerationLight", ATTR_AMBIENT: None}
+
+
 class DeviceWithRemoteControl(HomeConnectDevice):
     """Device that has Remote Control binary sensor."""
 
@@ -453,6 +461,7 @@ class FridgeFreezer(
     DeviceWithDoor,
     DeviceWithSuperModeFreezer,
     DeviceWithSuperModeRefrigerator,
+    DeviceWithRefrigerationLight,
 ):
     """Fridge/Freezer class."""
 
@@ -460,8 +469,13 @@ class FridgeFreezer(
         """Get a dictionary with infos about the associated entities."""
         super_mode_switches = self.get_super_mode_freezer_switch()
         super_mode_switches += self.get_super_mode_refrigerator_switch()
+        light_entity = self.get_light_entity()
         door_entity = self.get_door_entity()
-        return {"binary_sensor": [door_entity], "switch": super_mode_switches}
+        return {
+            "binary_sensor": [door_entity],
+            "light": [light_entity],
+            "switch": super_mode_switches,
+        }
 
 
 class Refrigerator(
