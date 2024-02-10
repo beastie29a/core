@@ -86,7 +86,7 @@ class HomeConnectBinarySensor(HomeConnectEntity, BinarySensorEntity):
                 "Unexpected value for HomeConnect %s state: %s", self._type, state
             )
             self._state = None
-        _LOGGER.debug("Updated, new state: %s", self._state)
+        _LOGGER.debug("Updated: %s, new state: %s", self._update_key, self._state)
 
     @property
     def device_class(self):

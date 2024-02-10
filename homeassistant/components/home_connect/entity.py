@@ -7,6 +7,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import Entity
 
+from . import ENTITY_SEMAPHORE
 from .api import HomeConnectDevice
 from .const import DOMAIN, SIGNAL_UPDATE_ENTITIES
 
@@ -29,6 +30,7 @@ class HomeConnectEntity(Entity):
             model=device.appliance.vib,
             name=device.appliance.name,
         )
+        self.parallel_updates = ENTITY_SEMAPHORE
 
     async def async_added_to_hass(self):
         """Register callbacks."""

@@ -99,4 +99,4 @@ class HomeConnectSensor(HomeConnectEntity, SensorEntity):
                 self._attr_native_value = cast(str, self._attr_native_value).split(".")[
                     -1
                 ]
-        _LOGGER.debug("Updated, new state: %s", self._attr_native_value)
+        _LOGGER.debug("Updated: %s, new state: %s", self._key, self._attr_native_value)

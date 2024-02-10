@@ -1,10 +1,15 @@
 """Provides a switch for Home Connect."""
+from dataclasses import dataclass
 import logging
 from typing import Any
 
 from homeconnect.api import HomeConnectError
 
-from homeassistant.components.switch import SwitchEntity
+from homeassistant.components.switch import (
+    SwitchDeviceClass,
+    SwitchEntity,
+    SwitchEntityDescription,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_DEVICE, CONF_ENTITIES
 from homeassistant.core import HomeAssistant
@@ -21,6 +26,27 @@ from .const import (
 from .entity import HomeConnectEntity
 
 _LOGGER = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True, kw_only=True)
+class HomeConnectSwitchEntityDescription(SwitchEntityDescription):
+    """Entity description for Switch."""
+
+
+SWITCH_TYPES: dict[str, HomeConnectSwitchEntityDescription] = {
+    "superfreezufridge": HomeConnectSwitchEntityDescription(
+        key="superfreezefridge",
+        device_class=SwitchDeviceClass.SWITCH,
+    ),
+    "superfreezefreezer": HomeConnectSwitchEntityDescription(
+        key="superfreezefreezer",
+        device_class=SwitchDeviceClass.SWITCH,
+    ),
+    "dispenser": HomeConnectSwitchEntityDescription(
+        key="dispenser",
+        device_class=SwitchDeviceClass.SWITCH,
+    ),
+}
 
 
 async def async_setup_entry(
@@ -53,10 +79,12 @@ async def async_setup_entry(
 class HomeConnectSwitch(HomeConnectEntity, SwitchEntity):
     """Generic switch class for Home Connect Binary Settings."""
 
-    def __init__(self, device, key, desc):
+    def __init__(self, device, key, desc, entity_description) -> None:
         """Initialize the entity."""
         super().__init__(device, desc)
         self._key = key
+        self.entity_description = entity_description
+        self._attr_available = False  # This overrides the default
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Tuen on setting."""
@@ -85,7 +113,7 @@ class HomeConnectSwitch(HomeConnectEntity, SwitchEntity):
 
         state = self.device.appliance.status.get(self._key, {})
         self._attr_is_on = state.get(ATTR_VALUE)
-        _LOGGER.debug("Updated %s, new state: %s", self._key, self._attr_is_on)
+        _LOGGER.debug("Updated: %s, new state: %s", self._key, self._attr_is_on)
 
 
 class HomeConnectProgramSwitch(HomeConnectEntity, SwitchEntity):
@@ -128,7 +156,7 @@ class HomeConnectProgramSwitch(HomeConnectEntity, SwitchEntity):
             self._attr_is_on = True
         else:
             self._attr_is_on = False
-        _LOGGER.debug("Updated, new state: %s", self._attr_is_on)
+        _LOGGER.debug("Updated: %s, new state: %s", self.program_name, self._attr_is_on)
 
 
 class HomeConnectPowerSwitch(HomeConnectEntity, SwitchEntity):
@@ -195,4 +223,4 @@ class HomeConnectPowerSwitch(HomeConnectEntity, SwitchEntity):
             self._attr_is_on = False
         else:
             self._attr_is_on = None
-        _LOGGER.debug("Updated, new state: %s", self._attr_is_on)
+        _LOGGER.debug("Updated: %s, new state: %s", BSH_POWER_STATE, self._attr_is_on)

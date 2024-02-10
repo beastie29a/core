@@ -1,6 +1,7 @@
 """Support for BSH Home Connect appliances."""
 from __future__ import annotations
 
+from asyncio import Semaphore
 from datetime import timedelta
 import logging
 
@@ -27,6 +28,7 @@ from .const import (
     BSH_PAUSE,
     BSH_RESUME,
     DOMAIN,
+    ENTITY_PARALLEL_UPDATES,
     SERVICE_OPTION_ACTIVE,
     SERVICE_OPTION_SELECTED,
     SERVICE_PAUSE_PROGRAM,
@@ -35,6 +37,8 @@ from .const import (
     SERVICE_SETTING,
     SERVICE_START_PROGRAM,
 )
+
+ENTITY_SEMAPHORE = Semaphore(ENTITY_PARALLEL_UPDATES)
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -35,6 +35,14 @@ from .const import (
     BSH_POWER_STANDBY,
     DEVICE_TYPES,
     SIGNAL_UPDATE_ENTITIES,
+    URL_API,
+)
+from .models import (
+    ArrayOfSettings,
+    ArrayOfStatus,
+    GetSetting,
+    ProgramDefinition,
+    Status,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -55,7 +63,7 @@ class ConfigEntryAuth(homeconnect.HomeConnectAPI):
         self.session = config_entry_oauth2_flow.OAuth2Session(
             hass, config_entry, implementation
         )
-        super().__init__(self.session.token)
+        super().__init__(token=self.session.token, api_url=URL_API)
         self.devices: list[dict[str, Any]] = []
 
     def refresh_tokens(self) -> dict:
@@ -98,6 +106,9 @@ class ConfigEntryAuth(homeconnect.HomeConnectAPI):
             else:
                 _LOGGER.warning("Appliance type %s not implemented", app.type)
                 continue
+            device.settings = {"data": app.get("/settings")}
+            device.status = {"data": app.get("/status")}
+
             devices.append(
                 {CONF_DEVICE: device, CONF_ENTITIES: device.get_entity_info()}
             )
@@ -116,26 +127,45 @@ class HomeConnectDevice:
         """Initialize the device class."""
         self.hass = hass
         self.appliance = appliance
+        self.settings: ArrayOfSettings = None
+        self.status: ArrayOfStatus = None
+        self.programs: ProgramDefinition = None
 
     def initialize(self):
         """Fetch the info needed to initialize the device."""
-        try:
-            self.appliance.get_status()
-        except (HomeConnectError, ValueError):
-            _LOGGER.debug("Unable to fetch appliance status. Probably offline")
-        try:
-            self.appliance.get_settings()
-        except (HomeConnectError, ValueError):
-            _LOGGER.debug("Unable to fetch settings. Probably offline")
-        try:
-            program_active = self.appliance.get_programs_active()
-        except (HomeConnectError, ValueError):
-            _LOGGER.debug("Unable to fetch active programs. Probably offline")
-            program_active = None
-        if program_active and ATTR_KEY in program_active:
-            self.appliance.status[BSH_ACTIVE_PROGRAM] = {
-                ATTR_VALUE: program_active[ATTR_KEY]
-            }
+
+        set_stat = "Setting"
+        for setting in self.settings.get("data", {}).get("settings", []):
+            key = setting.get("key")
+            _LOGGER.debug("Getting %s Data:", key)
+            try:
+                res: GetSetting = {"data": self.appliance.get(f"/settings/{key}")}
+                _LOGGER.debug("%s: %s, Values: %s", set_stat, key, res["data"])
+
+            except (HomeConnectError, ValueError):
+                _LOGGER.debug("Unable to fetch setting. %s: ", key, exc_info=True)
+
+        set_stat = "Status"
+        for stat in self.status.get("data", {}).get("status", []):
+            key = stat.get("key")
+            _LOGGER.debug("Getting %s Data:", key)
+            try:
+                res: Status = {"data": self.appliance.get(f"/status/{key}")}
+                _LOGGER.debug("%s: %s, Values: %s", set_stat, key, res["data"])
+
+            except (HomeConnectError, ValueError):
+                _LOGGER.debug("Unable to fetch status. %s: ", key, exc_info=True)
+
+        if isinstance(self, DeviceWithPrograms):
+            try:
+                program_active = self.appliance.get_programs_active()
+            except (HomeConnectError, ValueError):
+                _LOGGER.debug("Unable to fetch active programs: ", exc_info=True)
+                program_active = None
+            if program_active and ATTR_KEY in program_active:
+                self.appliance.status[BSH_ACTIVE_PROGRAM] = {
+                    ATTR_VALUE: program_active[ATTR_KEY]
+                }
         self.appliance.listen_events(callback=self.event_callback)
 
     def event_callback(self, appliance):
@@ -152,6 +182,10 @@ class DeviceWithPrograms(HomeConnectDevice):
         """Get the available programs."""
         try:
             programs_available = self.appliance.get_programs_available()
+            for key in programs_available:
+                _LOGGER.debug(
+                    "Program Options: %s", self.appliance.get_program_options(key)
+                )
         except (HomeConnectError, ValueError):
             _LOGGER.debug("Unable to fetch available programs. Probably offline")
             programs_available = []
@@ -272,12 +306,12 @@ class DeviceWithSwitches(HomeConnectDevice):
         # settings should be setup as a SelectEntity.
         # Ex: Refrigeration.Common.Setting.VacationMode
 
-        settings = self.appliance.get_settings()
+        _LOGGER.debug("Get-Switches Settings: %s", self.settings)
 
         return [
-            {ATTR_DEVICE: self, ATTR_KEY: k, ATTR_DESC: k.split(".")[3]}
-            for k in settings
-            if k in DEVICE_TYPES["switch"]
+            {ATTR_DEVICE: self, ATTR_KEY: k["key"], ATTR_DESC: k["key"].split(".")[3]}
+            for k in self.settings.get("data", {}).get("settings", [])
+            if k["key"] in DEVICE_TYPES["switch"]
         ]
 
 

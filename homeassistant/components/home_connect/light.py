@@ -158,7 +158,7 @@ class HomeConnectLight(HomeConnectEntity, LightEntity):
         else:
             self._attr_is_on = None
 
-        _LOGGER.debug("Updated, new light state: %s", self._attr_is_on)
+        _LOGGER.debug("Updated: %s, new light state: %s", self._key, self._attr_is_on)
 
         if self._ambient:
             color = self.device.appliance.status.get(self._custom_color_key, {})

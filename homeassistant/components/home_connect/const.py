@@ -1,9 +1,16 @@
 """Constants for the Home Connect integration."""
+import os
 
 DOMAIN = "home_connect"
 
-OAUTH2_AUTHORIZE = "https://api.home-connect.com/security/oauth/authorize"
-OAUTH2_TOKEN = "https://api.home-connect.com/security/oauth/token"
+DEV = os.environ.get("HOME_CONNECT_DEV", False)
+URL_API = "https://api.home-connect.com"
+
+if DEV:
+    URL_API = "https://simulator.home-connect.com"
+
+OAUTH2_AUTHORIZE = f"{URL_API}/security/oauth/authorize"
+OAUTH2_TOKEN = f"{URL_API}/security/oauth/token"
 
 BSH_POWER_STATE = "BSH.Common.Setting.PowerState"
 BSH_POWER_ON = "BSH.Common.EnumType.PowerState.On"
@@ -42,6 +49,8 @@ BSH_DOOR_STATE_OPEN = "BSH.Common.EnumType.DoorState.Open"
 
 BSH_PAUSE = "BSH.Common.Command.PauseProgram"
 BSH_RESUME = "BSH.Common.Command.ResumeProgram"
+
+ENTITY_PARALLEL_UPDATES = 1
 
 SIGNAL_UPDATE_ENTITIES = "home_connect.update_entities"
 
