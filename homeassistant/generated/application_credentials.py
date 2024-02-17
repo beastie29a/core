@@ -13,6 +13,7 @@ APPLICATION_CREDENTIALS = [
     "google_sheets",
     "google_tasks",
     "home_connect",
+    "home_connect_v2",
     "husqvarna_automower",
     "lametric",
     "lyric",

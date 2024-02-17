@@ -873,6 +873,7 @@ home-assistant-frontend==20240207.1
 home-assistant-intents==2024.2.2
 
 # homeassistant.components.home_connect
+# homeassistant.components.home_connect_v2
 homeconnect==0.7.2
 
 # homeassistant.components.homematicip_cloud

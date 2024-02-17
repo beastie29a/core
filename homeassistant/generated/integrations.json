@@ -2526,6 +2526,12 @@
       "config_flow": true,
       "iot_class": "cloud_push"
     },
+    "home_connect_v2": {
+      "name": "Home Connect v2",
+      "integration_type": "hub",
+      "config_flow": true,
+      "iot_class": "cloud_push"
+    },
     "home_plus_control": {
       "name": "Legrand Home+ Control",
       "integration_type": "virtual",

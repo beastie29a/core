@@ -449,6 +449,11 @@ ZEROCONF = {
             "domain": "homekit_controller",
         },
     ],
+    "_homeconnect._tcp.": [
+        {
+            "domain": "home_connect_v2",
+        },
+    ],
     "_homekit._tcp.local.": [
         {
             "domain": "homekit",
