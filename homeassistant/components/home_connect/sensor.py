@@ -58,12 +58,12 @@ def remove_from_status(status: dict, key: str) -> None:
 
 def update_event_state(status: dict) -> bool:
     """Return true if operation state is valid."""
-    return status.get(BSH_OPERATION_STATE, {}).get(ATTR_VALUE, "") in [
+    return status.get(BSH_OPERATION_STATE, {}).get(ATTR_VALUE, "") in (
         BSH_OPERATION_STATE_RUN,
         BSH_OPERATION_STATE_DELAYED_START,
         BSH_OPERATION_STATE_PAUSE,
         BSH_OPERATION_STATE_FINISHED,
-    ]
+    )
 
 
 def format_state_attr(state: str) -> str:

@@ -61,6 +61,16 @@ REFRIGERATION_STATUS_DOOR_CHILLER = "Refrigeration.Common.Status.Door.ChillerCom
 REFRIGERATION_STATUS_DOOR_FREEZER = "Refrigeration.Common.Status.Door.Freezer"
 REFRIGERATION_STATUS_DOOR_REFRIGERATOR = "Refrigeration.Common.Status.Door.Refrigerator"
 
+REFRIGERATION_EVENT_DOOR_ALARM_REFRIGERATOR = (
+    "Refrigeration.FridgeFreezer.Event.DoorAlarmRefrigerator"
+)
+REFRIGERATION_EVENT_DOOR_ALARM_FREEZER = (
+    "Refrigeration.FridgeFreezer.Event.DoorAlarmFreezer"
+)
+REFRIGERATION_EVENT_TEMP_ALARM_FREEZER = (
+    "Refrigeration.FridgeFreezer.Event.TemperatureAlarmFreezer"
+)
+
 BSH_AMBIENT_LIGHT_ENABLED = "BSH.Common.Setting.AmbientLightEnabled"
 BSH_AMBIENT_LIGHT_BRIGHTNESS = "BSH.Common.Setting.AmbientLightBrightness"
 BSH_AMBIENT_LIGHT_COLOR = "BSH.Common.Setting.AmbientLightColor"
