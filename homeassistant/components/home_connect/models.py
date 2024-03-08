@@ -13,20 +13,16 @@ class Constraints:  # noqa: D101
     displayvalues: list[str] | None = None
     default: dict[str, Any] | None = None
 
-    def get_allowedvalues(self) -> list:
-        """Return the allowed values."""
-        values = []
-        if self.allowedvalues:
-            values = [value.strip(".")[-1] for value in self.allowedvalues]
-
-        return values
-
 
 @dataclass
 class StatusConstraints(Constraints):
     """Constraints of the status, e.g. step size, enumeration values, etc."""
 
     access: str | None = None
+
+    def get(self, key: str) -> Any:
+        """Create dict attribute to resolve type issue."""
+        return getattr(self, key)
 
 
 @dataclass

@@ -95,10 +95,10 @@ BINARY_SENSORS: tuple[HomeConnectBinarySensorEntityDescription, ...] = (
     ),
     HomeConnectBinarySensorEntityDescription(
         state_key="Refrigeration.FridgeFreezer.Event.TemperatureAlarmFreezer",
-        key="Door Alarm Freezer",
+        key="Temperature Alarm Freezer",
         device_class=BinarySensorDeviceClass.PROBLEM,
         translation_key="event_sensor",
-        translation_placeholders={"name": "Door Alarm Freezer"},
+        translation_placeholders={"name": "Temperature Alarm Freezer"},
         value_fn=lambda status: bool(
             status.get(
                 "Refrigeration.FridgeFreezer.Event.TemperatureAlarmFreezer", {}

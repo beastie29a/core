@@ -100,7 +100,8 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
             **device.appliance.get(f"/status/{REFRIGERATION_STATUS_DOOR_CHILLER}")
         ),
         options_fn=lambda status_data: [
-            format_state_attr(value) for value in status_data.constraints.allowedvalues
+            format_state_attr(value)
+            for value in status_data.constraints.get("allowedvalues")
         ],
         exists_fn=lambda device: bool(
             device.appliance.status.get(REFRIGERATION_STATUS_DOOR_CHILLER)
@@ -118,7 +119,8 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
             **device.appliance.get(f"/status/{REFRIGERATION_STATUS_DOOR_FREEZER}")
         ),
         options_fn=lambda status_data: [
-            format_state_attr(value) for value in status_data.constraints.allowedvalues
+            format_state_attr(value)
+            for value in status_data.constraints.get("allowedvalues")
         ],
         exists_fn=lambda device: device.appliance.status.get(
             REFRIGERATION_STATUS_DOOR_FREEZER, False
@@ -137,7 +139,8 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
             **device.appliance.get(f"/status/{REFRIGERATION_STATUS_DOOR_REFRIGERATOR}")
         ),
         options_fn=lambda status_data: [
-            format_state_attr(value) for value in status_data.constraints.allowedvalues
+            format_state_attr(value)
+            for value in status_data.constraints.get("allowedvalues")
         ],
         exists_fn=lambda device: device.appliance.status.get(
             REFRIGERATION_STATUS_DOOR_REFRIGERATOR, False
@@ -156,7 +159,8 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
             **device.appliance.get(f"/status/{BSH_DOOR_STATE}")
         ),
         options_fn=lambda status_data: [
-            format_state_attr(value) for value in status_data.constraints.allowedvalues
+            format_state_attr(value)
+            for value in status_data.constraints.get("allowedvalues")
         ],
         exists_fn=lambda device: device.appliance.status.get(BSH_DOOR_STATE, False),
     ),
