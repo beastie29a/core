@@ -71,6 +71,17 @@ REFRIGERATION_EVENT_TEMP_ALARM_FREEZER = (
     "Refrigeration.FridgeFreezer.Event.TemperatureAlarmFreezer"
 )
 
+BSH_EVENT_PRESENT_STATE_PRESENT = "BSH.Common.EnumType.EventPresentState.Present"
+BSH_EVENT_PRESENT_STATE_CONFIRMED = "BSH.Common.EnumType.EventPresentState.Confirmed"
+BSH_EVENT_PRESENT_STATE_OFF = "BSH.Common.EnumType.EventPresentState.Off"
+
+BSH_EVENT_PRESENT_STATE_ENUM = (
+    BSH_EVENT_PRESENT_STATE_PRESENT,
+    BSH_EVENT_PRESENT_STATE_CONFIRMED,
+    BSH_EVENT_PRESENT_STATE_OFF,
+)
+
+
 BSH_AMBIENT_LIGHT_ENABLED = "BSH.Common.Setting.AmbientLightEnabled"
 BSH_AMBIENT_LIGHT_BRIGHTNESS = "BSH.Common.Setting.AmbientLightBrightness"
 BSH_AMBIENT_LIGHT_COLOR = "BSH.Common.Setting.AmbientLightColor"
@@ -80,10 +91,10 @@ BSH_AMBIENT_LIGHT_COLOR_CUSTOM_COLOR = (
 BSH_AMBIENT_LIGHT_CUSTOM_COLOR = "BSH.Common.Setting.AmbientLightCustomColor"
 
 BSH_DOOR_STATE = "BSH.Common.Status.DoorState"
-
+BSH_DOOR_STATE_CLOSED = "BSH.Common.EnumType.DoorState.Closed"
 
 BSH_DOOR_STATE_ENUM = {
-    "BSH.Common.EnumType.DoorState.Closed",
+    BSH_DOOR_STATE_CLOSED,
     "BSH.Common.EnumType.DoorState.Locked",
     "BSH.Common.EnumType.DoorState.Open",
     "BSH.Common.EnumType.DoorState.Ajar",
