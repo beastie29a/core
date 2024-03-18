@@ -21,6 +21,7 @@ from homeassistant.helpers import config_entry_oauth2_flow
 from homeassistant.helpers.dispatcher import dispatcher_send
 
 from .const import (
+    API_ENDPOINT,
     ATTR_AMBIENT,
     ATTR_DESC,
     ATTR_DEVICE,
@@ -54,7 +55,7 @@ class ConfigEntryAuth(homeconnect.HomeConnectAPI):
         self.session = config_entry_oauth2_flow.OAuth2Session(
             hass, config_entry, implementation
         )
-        super().__init__(self.session.token)
+        super().__init__(self.session.token, api_url=API_ENDPOINT)
         self.devices: list[dict[str, Any]] = []
 
     def refresh_tokens(self) -> dict:

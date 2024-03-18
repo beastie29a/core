@@ -1,9 +1,15 @@
 """Constants for the Home Connect integration."""
+import os
 
 DOMAIN = "home_connect"
 
-OAUTH2_AUTHORIZE = "https://api.home-connect.com/security/oauth/authorize"
-OAUTH2_TOKEN = "https://api.home-connect.com/security/oauth/token"
+API_ENDPOINT = "https://api.home-connect.com"
+
+if os.getenv("HOME_CONNECT_DEV"):
+    API_ENDPOINT = "https://simulator.home-connect.com"
+
+OAUTH2_AUTHORIZE = f"{API_ENDPOINT}/security/oauth/authorize"
+OAUTH2_TOKEN = f"{API_ENDPOINT}/security/oauth/token"
 
 BSH_POWER_STATE = "BSH.Common.Setting.PowerState"
 BSH_POWER_ON = "BSH.Common.EnumType.PowerState.On"
