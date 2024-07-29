@@ -1,0 +1,25 @@
+{
+  "Dishwasher": {
+    "data": {
+      "status": [
+        {
+          "key": "BSH.Common.Status.LocalControlActive",
+          "name": "Local operation active",
+          "value": false
+        },
+        {
+          "key": "BSH.Common.Status.OperationState",
+          "name": "Operation state",
+          "value": "BSH.Common.EnumType.OperationState.Inactive",
+          "displayvalue": "Inactive"
+        },
+        {
+          "key": "BSH.Common.Status.DoorState",
+          "name": "Door",
+          "value": "BSH.Common.EnumType.DoorState.Closed",
+          "displayvalue": "Closed"
+        }
+      ]
+    }
+  }
+}

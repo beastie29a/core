@@ -14,14 +14,77 @@ BSH_REMOTE_CONTROL_ACTIVATION_STATE = "BSH.Common.Status.RemoteControlActive"
 BSH_REMOTE_START_ALLOWANCE_STATE = "BSH.Common.Status.RemoteControlStartAllowed"
 BSH_CHILD_LOCK_STATE = "BSH.Common.Setting.ChildLock"
 
-
 BSH_OPERATION_STATE = "BSH.Common.Status.OperationState"
 BSH_OPERATION_STATE_RUN = "BSH.Common.EnumType.OperationState.Run"
 BSH_OPERATION_STATE_PAUSE = "BSH.Common.EnumType.OperationState.Pause"
 BSH_OPERATION_STATE_FINISHED = "BSH.Common.EnumType.OperationState.Finished"
+BSH_OPERATION_STATE_INACTIVE = "BSH.Common.EnumType.OperationState.Inactive"
+BSH_OPERATION_STATE_READY = "BSH.Common.EnumType.OperationState.Ready"
+BSH_OPERATION_STATE_DELAYED_START = "BSH.Common.EnumType.OperationState.DelayedStart"
+BSH_OPERATION_STATE_ACTION_REQUIRED = (
+    "BSH.Common.EnumType.OperationState.ActionRequired"
+)
+BSH_OPERATION_STATE_ERROR = "BSH.Common.EnumType.OperationState.Error"
+BSH_OPERATION_STATE_ABORTING = "BSH.Common.EnumType.OperationState.Aborting"
+
+BSH_REMAINING_PROGRAM_TIME = "BSH.Common.Option.RemainingProgramTime"
+BSH_PROGRAM_PROGRESS = "BSH.Common.Option.ProgramProgress"
+
+BSH_OPERATION_STATE_ENUM = (
+    BSH_OPERATION_STATE_INACTIVE,
+    BSH_OPERATION_STATE_READY,
+    BSH_OPERATION_STATE_DELAYED_START,
+    BSH_OPERATION_STATE_RUN,
+    BSH_OPERATION_STATE_PAUSE,
+    BSH_OPERATION_STATE_ACTION_REQUIRED,
+    BSH_OPERATION_STATE_FINISHED,
+    BSH_OPERATION_STATE_ERROR,
+    BSH_OPERATION_STATE_ABORTING,
+)
 
 COOKING_LIGHTING = "Cooking.Common.Setting.Lighting"
 COOKING_LIGHTING_BRIGHTNESS = "Cooking.Common.Setting.LightingBrightness"
+
+COOKING_CURRENT_CAVITY_TEMP = "Cooking.Oven.Status.CurrentCavityTemperature"
+
+REFRIGERATION_INTERNAL_LIGHT_POWER = "Refrigeration.Common.Setting.Light.Internal.Power"
+REFRIGERATION_INTERNAL_LIGHT_BRIGHTNESS = (
+    "Refrigeration.Common.Setting.Light.Internal.Brightness"
+)
+REFRIGERATION_EXTERNAL_LIGHT_POWER = "Refrigeration.Common.Setting.Light.External.Power"
+REFRIGERATION_EXTERNAL_LIGHT_BRIGHTNESS = (
+    "Refrigeration.Common.Setting.Light.External.Brightness"
+)
+
+REFRIGERATION_STATUS_DOOR_CHILLER = "Refrigeration.Common.Status.Door.ChillerCommon"
+REFRIGERATION_STATUS_DOOR_FREEZER = "Refrigeration.Common.Status.Door.Freezer"
+REFRIGERATION_STATUS_DOOR_REFRIGERATOR = "Refrigeration.Common.Status.Door.Refrigerator"
+
+REFRIGERATION_EVENT_DOOR_ALARM_REFRIGERATOR = (
+    "Refrigeration.FridgeFreezer.Event.DoorAlarmRefrigerator"
+)
+REFRIGERATION_EVENT_DOOR_ALARM_FREEZER = (
+    "Refrigeration.FridgeFreezer.Event.DoorAlarmFreezer"
+)
+REFRIGERATION_EVENT_TEMP_ALARM_FREEZER = (
+    "Refrigeration.FridgeFreezer.Event.TemperatureAlarmFreezer"
+)
+
+BSH_EVENT_PRESENT_STATE_PRESENT = "BSH.Common.EnumType.EventPresentState.Present"
+BSH_EVENT_PRESENT_STATE_CONFIRMED = "BSH.Common.EnumType.EventPresentState.Confirmed"
+BSH_EVENT_PRESENT_STATE_OFF = "BSH.Common.EnumType.EventPresentState.Off"
+
+BSH_EVENT_PRESENT_STATE_ENUM = (
+    BSH_EVENT_PRESENT_STATE_PRESENT,
+    BSH_EVENT_PRESENT_STATE_CONFIRMED,
+    BSH_EVENT_PRESENT_STATE_OFF,
+)
+
+REFRIGERATION_SUPERMODEFREEZER = "Refrigeration.FridgeFreezer.Setting.SuperModeFreezer"
+REFRIGERATION_SUPERMODEREFRIGERATOR = (
+    "Refrigeration.FridgeFreezer.Setting.SuperModeRefrigerator"
+)
+REFRIGERATION_DISPENSER = "Refrigeration.Common.Setting.Dispenser.Enabled"
 
 BSH_AMBIENT_LIGHT_ENABLED = "BSH.Common.Setting.AmbientLightEnabled"
 BSH_AMBIENT_LIGHT_BRIGHTNESS = "BSH.Common.Setting.AmbientLightBrightness"
@@ -35,6 +98,14 @@ BSH_DOOR_STATE = "BSH.Common.Status.DoorState"
 BSH_DOOR_STATE_CLOSED = "BSH.Common.EnumType.DoorState.Closed"
 BSH_DOOR_STATE_LOCKED = "BSH.Common.EnumType.DoorState.Locked"
 BSH_DOOR_STATE_OPEN = "BSH.Common.EnumType.DoorState.Open"
+BSH_DOOR_STATE_AJAR = "BSH.Common.EnumType.DoorState.Ajar"
+
+BSH_DOOR_STATE_ENUM = (
+    BSH_DOOR_STATE_CLOSED,
+    BSH_DOOR_STATE_LOCKED,
+    BSH_DOOR_STATE_OPEN,
+    BSH_DOOR_STATE_AJAR,
+)
 
 BSH_PAUSE = "BSH.Common.Command.PauseProgram"
 BSH_RESUME = "BSH.Common.Command.ResumeProgram"
@@ -58,3 +129,11 @@ ATTR_SENSOR_TYPE = "sensor_type"
 ATTR_SIGN = "sign"
 ATTR_UNIT = "unit"
 ATTR_VALUE = "value"
+
+DEVICE_TYPES = {
+    "switch": [
+        REFRIGERATION_SUPERMODEFREEZER,
+        REFRIGERATION_SUPERMODEREFRIGERATOR,
+        REFRIGERATION_DISPENSER,
+    ],
+}

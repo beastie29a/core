@@ -7,5 +7,51 @@
     "set_option_active": "mdi:gesture-tap",
     "set_option_selected": "mdi:gesture-tap",
     "change_setting": "mdi:cog"
+  },
+  "entity": {
+    "sensor": {
+      "door_sensor": {
+        "default": "mdi:door",
+        "state": {
+          "closed": "mdi:door-closed",
+          "open": "mdi:door-open",
+          "locked": "mdi:door-closed-lock",
+          "ajar": "mdi:door-closed-cancel"
+        }
+      },
+      "alarm_sensor_fridge": {
+        "default": "mdi:fridge",
+        "state": {
+          "off": "mdi:fridge",
+          "present": "mdi:fridge-alert",
+          "confirmed": "mdi:fridge-alert-outline"
+        }
+      },
+      "alarm_sensor_freezer": {
+        "default": "mdi:snowflake",
+        "state": {
+          "off": "mdi:snowflake",
+          "present": "mdi:snowflake-alert",
+          "confirmed": "mdi:snowflake-check"
+        }
+      },
+      "alarm_sensor_temp": {
+        "default": "mdi:thermometer",
+        "state": {
+          "off": "mdi:thermometer",
+          "present": "mdi:thermometer-alert",
+          "confirmed": "mdi:thermometer-check"
+        }
+      }
+    },
+    "switch": {
+      "refrigeration_dispenser": {
+        "default": "mdi:snowflake",
+        "state": {
+          "on": "mdi:snowflake",
+          "off": "mdi:snowflake-off"
+        }
+      }
+    }
   }
 }
