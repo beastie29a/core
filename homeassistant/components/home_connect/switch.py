@@ -47,9 +47,8 @@ SWITCHES: tuple[HomeConnectSwitchEntityDescription, ...] = (
         value_fn=lambda status: status.get(REFRIGERATION_SUPERMODEFREEZER, {}).get(
             ATTR_VALUE, False
         ),
-        exist_fn=lambda device: device.appliance.status.get(
-            REFRIGERATION_SUPERMODEFREEZER, False
-        ),
+        exist_fn=lambda device: REFRIGERATION_SUPERMODEFREEZER
+        in device.appliance.status,
     ),
     HomeConnectSwitchEntityDescription(
         key="Supermode Refrigerator",
@@ -57,9 +56,8 @@ SWITCHES: tuple[HomeConnectSwitchEntityDescription, ...] = (
         value_fn=lambda status: status.get(REFRIGERATION_SUPERMODEREFRIGERATOR, {}).get(
             ATTR_VALUE, False
         ),
-        exist_fn=lambda device: device.appliance.status.get(
-            REFRIGERATION_SUPERMODEREFRIGERATOR, False
-        ),
+        exist_fn=lambda device: REFRIGERATION_SUPERMODEREFRIGERATOR
+        in device.appliance.status,
     ),
     HomeConnectSwitchEntityDescription(
         key="Dispenser Enabled",
@@ -68,9 +66,7 @@ SWITCHES: tuple[HomeConnectSwitchEntityDescription, ...] = (
         value_fn=lambda status: status.get(REFRIGERATION_DISPENSER, {}).get(
             ATTR_VALUE, False
         ),
-        exist_fn=lambda device: device.appliance.status.get(
-            REFRIGERATION_DISPENSER, False
-        ),
+        exist_fn=lambda device: REFRIGERATION_DISPENSER in device.appliance.status,
     ),
 )
 
@@ -118,33 +114,39 @@ class HomeConnectSwitch(HomeConnectEntity, SwitchEntity):
         self._key = self.entity_description.on_key
         self._attr_available = False
 
-    def turn_on(self, **kwargs: Any) -> None:
+    async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on setting."""
 
         _LOGGER.debug("Turning on %s", self._key)
         try:
-            self.device.appliance.set_setting(self._key, True)
+            await self.hass.async_add_executor_job(
+                self.device.appliance.set_setting, self._key, True
+            )
         except HomeConnectError as err:
             _LOGGER.error("Error while trying to turn on: %s", err)
             self._attr_available = False
             return
 
         self._attr_available = True
+        self.async_entity_update()
 
-    def turn_off(self, **kwargs: Any) -> None:
+    async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn off setting."""
 
         _LOGGER.debug("Turning off %s", self._key)
         try:
-            self.device.appliance.set_setting(self._key, False)
+            await self.hass.async_add_executor_job(
+                self.device.appliance.set_setting, self._key, False
+            )
         except HomeConnectError as err:
             _LOGGER.error("Error while trying to turn off: %s", err)
             self._attr_available = False
             return
 
         self._attr_available = True
+        self.async_entity_update()
 
-    def update(self) -> None:
+    async def async_update(self) -> None:
         """Update the switch's status."""
 
         self._attr_is_on = self.entity_description.value_fn(
