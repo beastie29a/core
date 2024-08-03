@@ -186,14 +186,6 @@ class DeviceWithAmbientLight(HomeConnectDevice):
         return {ATTR_DEVICE: self, ATTR_DESC: "AmbientLight", ATTR_AMBIENT: True}
 
 
-class DeviceWithCoolingLight(HomeConnectDevice):
-    """Cooling Device with lighting."""
-
-    def get_coolinglight_entity(self):
-        """Get a dictionary with info about the cooling appliance lighting."""
-        return {ATTR_DEVICE: self, ATTR_DESC: "CoolingLight", ATTR_AMBIENT: None}
-
-
 class DeviceWithRemoteControl(HomeConnectDevice):
     """Device that has Remote Control binary sensor."""
 
@@ -326,38 +318,32 @@ class Hood(
 
 class FridgeFreezer(
     DeviceWithDoor,
-    DeviceWithCoolingLight,
 ):
     """Fridge/Freezer class."""
 
     def get_entity_info(self):
         """Get a dictionary with infos about the associated entities."""
-        lights = self.get_coolinglight_entity()
-        return {"light": [lights]}
+        return {}
 
 
 class Refrigerator(
     DeviceWithDoor,
-    DeviceWithCoolingLight,
 ):
     """Refrigerator class."""
 
     def get_entity_info(self):
         """Get a dictionary with infos about the associated entities."""
-        lights = self.get_coolinglight_entity()
-        return {"light": [lights]}
+        return {}
 
 
 class Freezer(
     DeviceWithDoor,
-    DeviceWithCoolingLight,
 ):
     """Freezer class."""
 
     def get_entity_info(self):
         """Get a dictionary with infos about the associated entities."""
-        lights = self.get_coolinglight_entity()
-        return {"light": [lights]}
+        return {}
 
 
 class Hob(DeviceWithOpState, DeviceWithPrograms, DeviceWithRemoteControl):
@@ -376,5 +362,6 @@ class CookProcessor(DeviceWithOpState):
 
     power_off_state = BSH_POWER_STANDBY
 
-    def get_entity_info(self) -> None:
+    def get_entity_info(self) -> dict:
         """Return nothing, used as a stub."""
+        return {}

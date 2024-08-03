@@ -56,7 +56,11 @@ REFRIGERATION_EXTERNAL_LIGHT_POWER = "Refrigeration.Common.Setting.Light.Externa
 REFRIGERATION_EXTERNAL_LIGHT_BRIGHTNESS = (
     "Refrigeration.Common.Setting.Light.External.Brightness"
 )
-
+REFRIGERATION_SUPERMODEFREEZER = "Refrigeration.FridgeFreezer.Setting.SuperModeFreezer"
+REFRIGERATION_SUPERMODEREFRIGERATOR = (
+    "Refrigeration.FridgeFreezer.Setting.SuperModeRefrigerator"
+)
+REFRIGERATION_DISPENSER = "Refrigeration.Common.Setting.Dispenser.Enabled"
 REFRIGERATION_STATUS_DOOR_CHILLER = "Refrigeration.Common.Status.Door.ChillerCommon"
 REFRIGERATION_STATUS_DOOR_FREEZER = "Refrigeration.Common.Status.Door.Freezer"
 REFRIGERATION_STATUS_DOOR_REFRIGERATOR = "Refrigeration.Common.Status.Door.Refrigerator"
@@ -92,6 +96,8 @@ BSH_AMBIENT_LIGHT_CUSTOM_COLOR = "BSH.Common.Setting.AmbientLightCustomColor"
 
 BSH_DOOR_STATE = "BSH.Common.Status.DoorState"
 BSH_DOOR_STATE_CLOSED = "BSH.Common.EnumType.DoorState.Closed"
+BSH_DOOR_STATE_LOCKED = "BSH.Common.EnumType.DoorState.Locked"
+BSH_DOOR_STATE_OPEN = "BSH.Common.EnumType.DoorState.Open"
 
 BSH_DOOR_STATE_ENUM = {
     BSH_DOOR_STATE_CLOSED,

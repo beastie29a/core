@@ -16,14 +16,13 @@ from homeassistant.components.light import (
     LightEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_ENTITIES
+from homeassistant.const import CONF_DEVICE, CONF_ENTITIES
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 import homeassistant.util.color as color_util
 
 from .api import HomeConnectDevice
 from .const import (
-    ATTR_DEVICE,
     ATTR_VALUE,
     BSH_AMBIENT_LIGHT_BRIGHTNESS,
     BSH_AMBIENT_LIGHT_COLOR,
@@ -57,17 +56,15 @@ LIGHTS: tuple[HomeConnectLightEntityDescription, ...] = (
         key="InternalLight",
         on_key=REFRIGERATION_INTERNAL_LIGHT_POWER,
         brightness_key=REFRIGERATION_INTERNAL_LIGHT_BRIGHTNESS,
-        exists_fn=lambda device: bool(
-            device.appliance.status.get(REFRIGERATION_INTERNAL_LIGHT_POWER)
-        ),
+        exists_fn=lambda device: REFRIGERATION_INTERNAL_LIGHT_POWER
+        in device.appliance.status,
     ),
     HomeConnectLightEntityDescription(
         key="ExternalLight",
         on_key=REFRIGERATION_EXTERNAL_LIGHT_POWER,
         brightness_key=REFRIGERATION_EXTERNAL_LIGHT_BRIGHTNESS,
-        exists_fn=lambda device: bool(
-            device.appliance.status.get(REFRIGERATION_EXTERNAL_LIGHT_POWER)
-        ),
+        exists_fn=lambda device: REFRIGERATION_EXTERNAL_LIGHT_POWER
+        in device.appliance.status,
     ),
 )
 
@@ -85,13 +82,15 @@ async def async_setup_entry(
         hc_api = hass.data[DOMAIN][config_entry.entry_id]
         for device_dict in hc_api.devices:
             entity_dicts = device_dict.get(CONF_ENTITIES, {}).get("light", [])
-            entity_list = [
-                HomeConnectLight(**d)
-                if d["desc"] != "CoolingLight"
-                else HomeConnectCoolingLight(**d, entity_description=description)
-                for d in entity_dicts
+            entity_list = [HomeConnectLight(**d) for d in entity_dicts]
+            entity_list += [
+                HomeConnectCoolingLight(
+                    device=device_dict[CONF_DEVICE],
+                    ambient=False,
+                    entity_description=description,
+                )
                 for description in LIGHTS
-                if description.exists_fn(d[ATTR_DEVICE])
+                if description.exists_fn(device_dict[CONF_DEVICE])
             ]
             entities += entity_list
         return entities
@@ -251,7 +250,6 @@ class HomeConnectCoolingLight(HomeConnectLight):
     def __init__(
         self,
         device: HomeConnectDevice,
-        desc: str,
         ambient: bool,
         entity_description: HomeConnectLightEntityDescription,
     ) -> None:
