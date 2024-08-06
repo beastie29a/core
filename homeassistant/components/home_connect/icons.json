@@ -6,6 +6,20 @@
     "resume_program": "mdi:play-pause",
     "set_option_active": "mdi:gesture-tap",
     "set_option_selected": "mdi:gesture-tap",
-    "change_setting": "mdi:cog"
+    "change_setting": "mdi:cog",
+    "get_data": "mdi:code-json"
+  },
+  "entity": {
+    "sensor": {
+      "door_sensor": {
+        "default": "mdi:door",
+        "state": {
+          "closed": "mdi:door-closed",
+          "open": "mdi:door-open",
+          "locked": "mdi:door-closed-lock",
+          "ajar": "mdi:door-closed-cancel"
+        }
+      }
+    }
   }
 }

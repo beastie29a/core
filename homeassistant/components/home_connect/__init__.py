@@ -28,6 +28,7 @@ from .const import (
     BSH_PAUSE,
     BSH_RESUME,
     DOMAIN,
+    SERVICE_GET_DATA,
     SERVICE_OPTION_ACTIVE,
     SERVICE_OPTION_SELECTED,
     SERVICE_PAUSE_PROGRAM,
@@ -48,6 +49,13 @@ SERVICE_SETTING_SCHEMA = vol.Schema(
         vol.Required(ATTR_DEVICE_ID): str,
         vol.Required(ATTR_KEY): str,
         vol.Required(ATTR_VALUE): vol.Any(str, int, bool),
+    }
+)
+
+SERVICE_GET_DATA_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_DEVICE_ID): str,
+        vol.Required(ATTR_KEY): str,
     }
 )
 
@@ -125,23 +133,25 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     async def _async_service_key_value(call, method):
         """Execute calls to services taking a key and value."""
         key = call.data[ATTR_KEY]
-        value = call.data[ATTR_VALUE]
+        value = call.data.get(ATTR_VALUE)
         unit = call.data.get(ATTR_UNIT)
         device_id = call.data[ATTR_DEVICE_ID]
 
         appliance = _get_appliance_by_device_id(hass, device_id)
         if unit is not None:
             await hass.async_add_executor_job(
+                getattr(appliance, method), key, value, unit
+            )
+        elif value is not None:
+            await hass.async_add_executor_job(
                 getattr(appliance, method),
                 key,
                 value,
-                unit,
             )
         else:
             await hass.async_add_executor_job(
                 getattr(appliance, method),
                 key,
-                value,
             )
 
     async def async_service_option_active(call):
@@ -155,6 +165,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     async def async_service_setting(call):
         """Service for changing a setting."""
         await _async_service_key_value(call, "set_setting")
+
+    async def async_service_get_data(call):
+        """Service for changing a setting."""
+        await _async_service_key_value(call, "get")
 
     async def async_service_pause_program(call):
         """Service for pausing a program."""
@@ -186,6 +200,9 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     )
     hass.services.async_register(
         DOMAIN, SERVICE_SETTING, async_service_setting, schema=SERVICE_SETTING_SCHEMA
+    )
+    hass.services.async_register(
+        DOMAIN, SERVICE_GET_DATA, async_service_get_data, schema=SERVICE_GET_DATA_SCHEMA
     )
     hass.services.async_register(
         DOMAIN,

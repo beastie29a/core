@@ -17,6 +17,28 @@
       "default": "[%key:common::config_flow::create_entry::authenticated%]"
     }
   },
+  "entity": {
+    "sensor": {
+      "door_sensor": {
+        "name": "{name}"
+      },
+      "event_sensor": {
+        "name": "{name}"
+      },
+      "state_sensors": {
+        "name": "{name}"
+      },
+      "status_sensors": {
+        "name": "{name}"
+      },
+      "completed_program_time": {
+        "name": "{completed_time}"
+      },
+      "remaining_program_time": {
+        "name": "{remaining_time}"
+      }
+    }
+  },
   "services": {
     "start_program": {
       "name": "Start program",
@@ -127,6 +149,17 @@
         },
         "key": { "name": "Key", "description": "Key of the setting." },
         "value": { "name": "Value", "description": "Value of the setting." }
+      }
+    },
+    "get_data": {
+      "name": "Get Data",
+      "description": "Get data from an API endpoint",
+      "fields": {
+        "device_id": {
+          "name": "Device ID",
+          "description": "[%key:component::home_connect::services::start_program::fields::device_id::description%]"
+        },
+        "key": { "name": "Key", "description": "Key of the setting." }
       }
     }
   }

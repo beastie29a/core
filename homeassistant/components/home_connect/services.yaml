@@ -111,3 +111,15 @@ change_setting:
       required: true
       selector:
         object:
+get_data:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: home_connect
+    key:
+      example: "/settings/BSH.Common.Setting.ChildLock"
+      required: true
+      selector:
+        text:
