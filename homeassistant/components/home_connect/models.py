@@ -20,10 +20,6 @@ class StatusConstraints(Constraints):
 
     access: str | None = None
 
-    def get(self, key: str) -> Any:
-        """Create dict attribute to resolve type issue."""
-        return getattr(self, key)
-
 
 @dataclass
 class Option:  # noqa: D101
@@ -34,11 +30,15 @@ class Option:  # noqa: D101
     displayvalue: str | None = None
     unit: str | None = None
 
+    def __post_init__(self):
+        """Reassign constraints from dict to StatusConstraints."""
+        if isinstance(self.constraints, dict):
+            self.constraints = StatusConstraints(**self.constraints)
+
 
 @dataclass
 class StatusData(Option):  # noqa: D101
     type: str | None = None
-    # constraints: Optional[StatusConstraints] = None
 
 
 @dataclass
