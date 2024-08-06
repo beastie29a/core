@@ -104,7 +104,7 @@ class HomeConnectDevice:
         """Initialize the device class."""
         self.hass = hass
         self.appliance: HomeConnectAppliance = appliance
-        self.programs = None
+        self.programs: bool = False
 
     def initialize(self):
         """Fetch the info needed to initialize the device."""
@@ -146,11 +146,11 @@ class DeviceWithPrograms(HomeConnectDevice):
         """Get the available programs."""
         try:
             programs_available = self.appliance.get_programs_available()
+            self.programs = True
             _LOGGER.debug("Programs Available: %s", programs_available)
         except (HomeConnectError, ValueError):
             _LOGGER.debug("Unable to fetch available programs. Probably offline")
             programs_available = []
-        self.programs = programs_available
         return programs_available
 
     def get_program_switches(self):

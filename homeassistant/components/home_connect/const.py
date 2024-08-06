@@ -27,13 +27,14 @@ BSH_OPERATION_STATE_RUN = "BSH.Common.EnumType.OperationState.Run"
 BSH_OPERATION_STATE_PAUSE = "BSH.Common.EnumType.OperationState.Pause"
 BSH_OPERATION_STATE_FINISHED = "BSH.Common.EnumType.OperationState.Finished"
 BSH_OPERATION_STATE_DELAYED_START = "BSH.Common.EnumType.OperationState.DelayedStart"
+BSH_OPERATION_STATE_READY = "BSH.Common.EnumType.OperationState.Ready"
 
 BSH_REMAINING_PROGRAM_TIME = "BSH.Common.Option.RemainingProgramTime"
 BSH_PROGRAM_PROGRESS = "BSH.Common.Option.ProgramProgress"
 
 BSH_OPERATION_STATE_ENUM = [
     "BSH.Common.EnumType.OperationState.Inactive",
-    "BSH.Common.EnumType.OperationState.Ready",
+    BSH_OPERATION_STATE_READY,
     BSH_OPERATION_STATE_DELAYED_START,
     BSH_OPERATION_STATE_RUN,
     BSH_OPERATION_STATE_PAUSE,

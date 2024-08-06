@@ -4,61 +4,59 @@ from collections.abc import Awaitable, Callable
 from unittest.mock import MagicMock, Mock
 
 from freezegun.api import FrozenDateTimeFactory
+from homeconnect.api import HomeConnectAppliance
 import pytest
 
+from homeassistant.components.home_connect.const import (
+    ATTR_VALUE,
+    BSH_OPERATION_STATE,
+    BSH_OPERATION_STATE_DELAYED_START,
+    BSH_OPERATION_STATE_READY,
+    BSH_OPERATION_STATE_RUN,
+    BSH_PROGRAM_PROGRESS,
+    BSH_REMAINING_PROGRAM_TIME,
+)
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_component import async_update_entity
 
-from tests.common import MockConfigEntry
+from tests.common import MockConfigEntry, load_json_object_fixture
 
 TEST_HC_APP = "Dishwasher"
 
 
 EVENT_PROG_DELAYED_START = {
-    "BSH.Common.Status.OperationState": {
-        "value": "BSH.Common.EnumType.OperationState.Delayed"
-    },
+    BSH_OPERATION_STATE: {ATTR_VALUE: BSH_OPERATION_STATE_DELAYED_START},
 }
 
 EVENT_PROG_REMAIN_NO_VALUE = {
-    "BSH.Common.Option.RemainingProgramTime": {},
-    "BSH.Common.Status.OperationState": {
-        "value": "BSH.Common.EnumType.OperationState.Delayed"
-    },
+    BSH_REMAINING_PROGRAM_TIME: {},
+    BSH_OPERATION_STATE: {ATTR_VALUE: BSH_OPERATION_STATE_DELAYED_START},
 }
 
 
 EVENT_PROG_RUN = {
-    "BSH.Common.Option.RemainingProgramTime": {"value": "0"},
-    "BSH.Common.Option.ProgramProgress": {"value": "60"},
-    "BSH.Common.Status.OperationState": {
-        "value": "BSH.Common.EnumType.OperationState.Run"
-    },
+    BSH_REMAINING_PROGRAM_TIME: {ATTR_VALUE: 0},
+    BSH_PROGRAM_PROGRESS: {ATTR_VALUE: 60},
+    BSH_OPERATION_STATE: {ATTR_VALUE: BSH_OPERATION_STATE_RUN},
 }
 
 
 EVENT_PROG_UPDATE_1 = {
-    "BSH.Common.Option.RemainingProgramTime": {"value": "0"},
-    "BSH.Common.Option.ProgramProgress": {"value": "80"},
-    "BSH.Common.Status.OperationState": {
-        "value": "BSH.Common.EnumType.OperationState.Run"
-    },
+    BSH_REMAINING_PROGRAM_TIME: {ATTR_VALUE: 0},
+    BSH_PROGRAM_PROGRESS: {ATTR_VALUE: 80},
+    BSH_OPERATION_STATE: {ATTR_VALUE: BSH_OPERATION_STATE_RUN},
 }
 
 EVENT_PROG_UPDATE_2 = {
-    "BSH.Common.Option.RemainingProgramTime": {"value": "20"},
-    "BSH.Common.Option.ProgramProgress": {"value": "99"},
-    "BSH.Common.Status.OperationState": {
-        "value": "BSH.Common.EnumType.OperationState.Run"
-    },
+    BSH_REMAINING_PROGRAM_TIME: {ATTR_VALUE: 20},
+    BSH_PROGRAM_PROGRESS: {ATTR_VALUE: 99},
+    BSH_OPERATION_STATE: {ATTR_VALUE: BSH_OPERATION_STATE_RUN},
 }
 
 EVENT_PROG_END = {
-    "BSH.Common.Status.OperationState": {
-        "value": "BSH.Common.EnumType.OperationState.Ready"
-    },
+    BSH_OPERATION_STATE: {ATTR_VALUE: BSH_OPERATION_STATE_READY},
 }
 
 
@@ -95,7 +93,7 @@ PROGRAM_SEQUENCE_EVENTS = (
 # Entity mapping to expected state at each program sequence.
 ENTITY_ID_STATES = {
     "sensor.dishwasher_operation_state": (
-        "Delayed",
+        "DelayedStart",
         "Run",
         "Run",
         "Run",
@@ -132,8 +130,8 @@ ENTITY_ID_STATES = {
 @pytest.mark.usefixtures("bypass_throttle")
 async def test_event_sensors(
     appliance: Mock,
-    states: tuple,
-    event_run: dict,
+    states: tuple[str, str],
+    event_run: dict[str, dict[str, str]],
     freezer: FrozenDateTimeFactory,
     hass: HomeAssistant,
     config_entry: MockConfigEntry,
@@ -146,7 +144,25 @@ async def test_event_sensors(
 
     time_to_freeze = "2021-01-09 12:00:00+00:00"
     freezer.move_to(time_to_freeze)
-
+    appliance.get.side_effect = (
+        lambda x: load_json_object_fixture("home_connect/status-data.json")
+        .get(x, {})
+        .get("data", {})
+    )
+    appliance.get_programs_available.return_value = [
+        p["key"]
+        for p in load_json_object_fixture("home_connect/programs-available.json")
+        .get(appliance.name, {})
+        .get("data", {})
+        .get("programs", [])
+    ]
+    appliance.status.update(
+        HomeConnectAppliance.json2dict(
+            load_json_object_fixture("home_connect/status.json")
+            .get("data", {})
+            .get("status", {})
+        )
+    )
     get_appliances.return_value = [appliance]
 
     assert config_entry.state == ConfigEntryState.NOT_LOADED
@@ -189,6 +205,25 @@ async def test_remaining_prog_time_edge_cases(
     get_appliances: MagicMock,
 ) -> None:
     """Run program sequence to test edge cases for the remaining_prog_time entity."""
+    appliance.get.side_effect = (
+        lambda x: load_json_object_fixture("home_connect/status-data.json")
+        .get(x, {})
+        .get("data", {})
+    )
+    appliance.get_programs_available.return_value = [
+        p["key"]
+        for p in load_json_object_fixture("home_connect/programs-available.json")
+        .get(appliance.name)
+        .get("data")
+        .get("programs")
+    ]
+    appliance.status.update(
+        HomeConnectAppliance.json2dict(
+            load_json_object_fixture("home_connect/status.json")
+            .get("data")
+            .get("status")
+        )
+    )
     get_appliances.return_value = [appliance]
     entity_id = "sensor.dishwasher_remaining_program_time"
     time_to_freeze = "2021-01-09 12:00:00+00:00"

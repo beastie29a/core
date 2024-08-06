@@ -73,7 +73,7 @@ def update_event_state(status: dict) -> bool:
 
 def format_state_attr(state: str) -> str:
     """Format state values to attribute values."""
-    return state.rsplit(".", maxsplit=1)[-1].lower()
+    return state.rsplit(".", maxsplit=1)[-1]
 
 
 @dataclass(frozen=True)
@@ -89,7 +89,7 @@ class HomeConnectSensorEntityDescription(SensorEntityDescription):
         value={},
     )
     options_fn: Callable[[StatusData], list[str] | None] = lambda _: None
-    exists_fn: Callable[[HomeConnectDevice], bool] = lambda _: True
+    exists_fn: Callable[[HomeConnectDevice], bool] = lambda _: False
 
 
 SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
@@ -107,9 +107,8 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         options_fn=lambda status_data: [
             format_state_attr(value) for value in status_data.constraints.allowedvalues
         ],
-        exists_fn=lambda device: bool(
-            device.appliance.status.get(REFRIGERATION_STATUS_DOOR_CHILLER)
-        ),
+        exists_fn=lambda device: REFRIGERATION_STATUS_DOOR_CHILLER
+        in device.appliance.status,
     ),
     HomeConnectSensorEntityDescription(
         state_key=REFRIGERATION_STATUS_DOOR_FREEZER,
@@ -125,9 +124,8 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         options_fn=lambda status_data: [
             format_state_attr(value) for value in status_data.constraints.allowedvalues
         ],
-        exists_fn=lambda device: device.appliance.status.get(
-            REFRIGERATION_STATUS_DOOR_FREEZER, False
-        ),
+        exists_fn=lambda device: REFRIGERATION_STATUS_DOOR_FREEZER
+        in device.appliance.status,
     ),
     HomeConnectSensorEntityDescription(
         state_key=REFRIGERATION_EVENT_DOOR_ALARM_FREEZER,
@@ -144,9 +142,8 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         options_fn=lambda _: [
             format_state_attr(value) for value in BSH_EVENT_PRESENT_STATE_ENUM
         ],
-        exists_fn=lambda device: device.appliance.status.get(
-            REFRIGERATION_STATUS_DOOR_FREEZER, False
-        ),
+        exists_fn=lambda device: REFRIGERATION_STATUS_DOOR_FREEZER
+        in device.appliance.status,
     ),
     HomeConnectSensorEntityDescription(
         state_key=REFRIGERATION_STATUS_DOOR_REFRIGERATOR,
@@ -163,9 +160,8 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         options_fn=lambda status_data: [
             format_state_attr(value) for value in status_data.constraints.allowedvalues
         ],
-        exists_fn=lambda device: device.appliance.status.get(
-            REFRIGERATION_STATUS_DOOR_REFRIGERATOR, False
-        ),
+        exists_fn=lambda device: REFRIGERATION_STATUS_DOOR_REFRIGERATOR
+        in device.appliance.status,
     ),
     HomeConnectSensorEntityDescription(
         state_key=REFRIGERATION_EVENT_DOOR_ALARM_REFRIGERATOR,
@@ -182,9 +178,8 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         options_fn=lambda _: [
             format_state_attr(value) for value in BSH_EVENT_PRESENT_STATE_ENUM
         ],
-        exists_fn=lambda device: device.appliance.status.get(
-            REFRIGERATION_STATUS_DOOR_REFRIGERATOR, False
-        ),
+        exists_fn=lambda device: REFRIGERATION_STATUS_DOOR_REFRIGERATOR
+        in device.appliance.status,
     ),
     HomeConnectSensorEntityDescription(
         state_key=REFRIGERATION_EVENT_TEMP_ALARM_FREEZER,
@@ -220,7 +215,7 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         options_fn=lambda status_data: [
             format_state_attr(value) for value in status_data.constraints.allowedvalues
         ],
-        exists_fn=lambda device: device.appliance.status.get(BSH_DOOR_STATE, False),
+        exists_fn=lambda device: BSH_DOOR_STATE in device.appliance.status,
     ),
     HomeConnectSensorEntityDescription(
         state_key=BSH_REMAINING_PROGRAM_TIME,
@@ -277,9 +272,7 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         else format_state_attr(BSH_OPERATION_STATE_RUN)
         if program_running(status)
         else format_state_attr(value),
-        exists_fn=lambda device: device.appliance.status.get(
-            BSH_OPERATION_STATE, False
-        ),
+        exists_fn=lambda device: BSH_OPERATION_STATE in device.appliance.status,
     ),
     HomeConnectSensorEntityDescription(
         state_key=COOKING_CURRENT_CAVITY_TEMP,
@@ -291,9 +284,7 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         },
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         value_fn=lambda status: status[COOKING_CURRENT_CAVITY_TEMP][ATTR_VALUE],
-        exists_fn=lambda device: device.appliance.status.get(
-            COOKING_CURRENT_CAVITY_TEMP, False
-        ),
+        exists_fn=lambda device: COOKING_CURRENT_CAVITY_TEMP in device.appliance.status,
     ),
 )
 
