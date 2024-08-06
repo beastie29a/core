@@ -87,7 +87,9 @@ class HomeConnectProgramSwitch(HomeConnectEntity, SwitchEntity):
             self._attr_is_on = True
         else:
             self._attr_is_on = False
-        _LOGGER.debug("Updated, new state: %s", self._attr_is_on)
+        _LOGGER.debug(
+            "Updated: %s, new state: %s", self.device.appliance.haId, self._attr_is_on
+        )
 
 
 class HomeConnectPowerSwitch(HomeConnectEntity, SwitchEntity):

@@ -121,4 +121,6 @@ class HomeConnectBinarySensor(HomeConnectEntity, BinarySensorEntity):
         self._attr_is_on = self.entity_description.value_fn(
             self.device.appliance.status
         )
-        _LOGGER.debug("Updated, new state: %s", self._state)
+        _LOGGER.debug(
+            "Updated: %s, new state: %s", self.device.appliance.haId, self._state
+        )

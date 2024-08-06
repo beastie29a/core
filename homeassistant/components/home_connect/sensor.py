@@ -162,7 +162,7 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         + timedelta(seconds=status.get(BSH_REMAINING_PROGRAM_TIME, {}).get(ATTR_VALUE))
         if update_event_state(status) and status.get(BSH_REMAINING_PROGRAM_TIME)
         else None,
-        exists_fn=lambda device: bool(bool(device.programs)),
+        exists_fn=lambda device: bool(device.programs),
     ),
     HomeConnectSensorEntityDescription(
         state_key=BSH_PROGRAM_PROGRESS,
@@ -208,7 +208,7 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         value_fn=lambda status: status[COOKING_CURRENT_CAVITY_TEMP].get(ATTR_VALUE),
         exists_fn=lambda device: bool(
-            device.appliance.status.get("Cooking.Oven.Status.CurrentCavityTemperature")
+            device.appliance.status.get(COOKING_CURRENT_CAVITY_TEMP)
         ),
     ),
 )
@@ -274,4 +274,8 @@ class HomeConnectSensor(HomeConnectEntity, SensorEntity):
         self._attr_native_value = self.entity_description.value_fn(
             self.device.appliance.status
         )
-        _LOGGER.debug("Updated, new state: %s", self._attr_native_value)
+        _LOGGER.debug(
+            "Updated: %s, new state: %s",
+            self.device.appliance.haId,
+            self._attr_native_value,
+        )
