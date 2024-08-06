@@ -61,13 +61,53 @@ BINARY_SENSORS: tuple[HomeConnectBinarySensorEntityDescription, ...] = (
         state_key="Refrigeration.FridgeFreezer.Event.DoorAlarmRefrigerator",
         key="Door Alarm Refrigerator",
         device_class=BinarySensorDeviceClass.PROBLEM,
-        value_fn=lambda status: status.get(
-            "Refrigeration.FridgeFreezer.Event.DoorAlarmRefrigerator", {}
-        ).get(ATTR_VALUE, "")
-        == "BSH.Common.EnumType.EventPresentState.Present"
-        and status["BSH.Common.Status.DoorState"]
-        != "BSH.Common.EnumType.DoorState.Closed",
-        exists_fn=lambda device: bool(device.appliance.type == "FridgeFreezer"),
+        translation_key="event_sensor",
+        translation_placeholders={"name": "Door Alarm Refrigerator"},
+        value_fn=lambda status: bool(
+            status.get(
+                "Refrigeration.FridgeFreezer.Event.DoorAlarmRefrigerator", {}
+            ).get(ATTR_VALUE, "")
+            == "BSH.Common.EnumType.EventPresentState.Present"
+            and status["BSH.Common.Status.DoorState"]
+            != "BSH.Common.EnumType.DoorState.Closed"
+        ),
+        exists_fn=lambda device: bool(
+            device.appliance.type in ("FridgeFreezer", "Refrigerator")
+        ),
+    ),
+    HomeConnectBinarySensorEntityDescription(
+        state_key="Refrigeration.FridgeFreezer.Event.DoorAlarmFreezer",
+        key="Door Alarm Freezer",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        translation_key="event_sensor",
+        translation_placeholders={"name": "Door Alarm Freezer"},
+        value_fn=lambda status: bool(
+            status.get("Refrigeration.FridgeFreezer.Event.DoorAlarmFreezer", {}).get(
+                ATTR_VALUE, ""
+            )
+            == "BSH.Common.EnumType.EventPresentState.Present"
+            and status["BSH.Common.Status.DoorState"]
+            != "BSH.Common.EnumType.DoorState.Closed"
+        ),
+        exists_fn=lambda device: bool(
+            device.appliance.type in ("FridgeFreezer", "Freezer")
+        ),
+    ),
+    HomeConnectBinarySensorEntityDescription(
+        state_key="Refrigeration.FridgeFreezer.Event.TemperatureAlarmFreezer",
+        key="Door Alarm Freezer",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        translation_key="event_sensor",
+        translation_placeholders={"name": "Door Alarm Freezer"},
+        value_fn=lambda status: bool(
+            status.get(
+                "Refrigeration.FridgeFreezer.Event.TemperatureAlarmFreezer", {}
+            ).get(ATTR_VALUE, "")
+            == "BSH.Common.EnumType.EventPresentState.Present"
+        ),
+        exists_fn=lambda device: bool(
+            device.appliance.type in ("FridgeFreezer", "Freezer")
+        ),
     ),
 )
 
@@ -114,7 +154,7 @@ class HomeConnectBinarySensor(HomeConnectEntity, BinarySensorEntity):
     @property
     def available(self) -> bool:
         """Return true if the binary sensor is available."""
-        return bool(self.device.appliance.status.get(self._update_key))
+        return self.entity_description.exists_fn(self.device)
 
     async def async_update(self) -> None:
         """Update the binary sensor's status."""
@@ -122,5 +162,7 @@ class HomeConnectBinarySensor(HomeConnectEntity, BinarySensorEntity):
             self.device.appliance.status
         )
         _LOGGER.debug(
-            "Updated: %s, new state: %s", self.device.appliance.haId, self._state
+            "Updated: %s, new state: %s",
+            self._attr_unique_id,
+            self._attr_state,
         )

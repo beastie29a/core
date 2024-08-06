@@ -18,6 +18,11 @@
     }
   },
   "entity": {
+    "binary_sensor": {
+      "event_sensor": {
+        "name": "{name}"
+      }
+    },
     "sensor": {
       "door_sensor": {
         "name": "{name}"

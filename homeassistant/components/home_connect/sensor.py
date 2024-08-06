@@ -3,7 +3,6 @@
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import timedelta
-from functools import cached_property
 import logging
 from typing import Any
 
@@ -43,14 +42,33 @@ from .models import StatusData
 _LOGGER = logging.getLogger(__name__)
 
 
+def program_running(status: dict) -> bool:
+    """Return true if a program has started after initial delay."""
+
+    return (
+        (progress := status.get(BSH_PROGRAM_PROGRESS, {}).get(ATTR_VALUE, 0))
+        and (remaining := status.get(BSH_REMAINING_PROGRAM_TIME, {}).get(ATTR_VALUE, 0))
+    ) and (progress > 0 or remaining > 0)
+
+
+def remove_from_status(status: dict, key: str) -> None:
+    """Reset the state of event based sensors."""
+    status.pop(key, None)
+
+
 def update_event_state(status: dict) -> bool:
-    """Return value for event drviven sensors."""
+    """Return true if operation state is valid."""
     return status.get(BSH_OPERATION_STATE, {}).get(ATTR_VALUE, "") in [
         BSH_OPERATION_STATE_RUN,
         BSH_OPERATION_STATE_DELAYED_START,
         BSH_OPERATION_STATE_PAUSE,
         BSH_OPERATION_STATE_FINISHED,
     ]
+
+
+def format_state_attr(state: str) -> str:
+    """Format state values to attribute values."""
+    return state.rsplit(".", maxsplit=1)[-1].lower()
 
 
 @dataclass(frozen=True)
@@ -72,19 +90,17 @@ class HomeConnectSensorEntityDescription(SensorEntityDescription):
 SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
     HomeConnectSensorEntityDescription(
         state_key=REFRIGERATION_STATUS_DOOR_CHILLER,
-        key="Chiller Door",
+        key="chiller_door",
         translation_key="door_sensor",
         translation_placeholders={"name": "Chiller Door"},
-        value_fn=lambda status: status[REFRIGERATION_STATUS_DOOR_CHILLER]
-        .get(ATTR_VALUE)
-        .rsplit(".", maxsplit=1)[-1]
-        .lower(),
+        value_fn=lambda status: format_state_attr(
+            status[REFRIGERATION_STATUS_DOOR_CHILLER].get(ATTR_VALUE)
+        ),
         status_data_fn=lambda device: StatusData(
             **device.appliance.get(f"/status/{REFRIGERATION_STATUS_DOOR_CHILLER}")
         ),
         options_fn=lambda status_data: [
-            value.rsplit(".", maxsplit=1)[-1].lower()
-            for value in status_data.constraints.allowedvalues
+            format_state_attr(value) for value in status_data.constraints.allowedvalues
         ],
         exists_fn=lambda device: bool(
             device.appliance.status.get(REFRIGERATION_STATUS_DOOR_CHILLER)
@@ -92,27 +108,25 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
     ),
     HomeConnectSensorEntityDescription(
         state_key=REFRIGERATION_STATUS_DOOR_FREEZER,
-        key="Freezer Door",
+        key="freezer_door",
         translation_key="door_sensor",
         translation_placeholders={"name": "Freezer Door"},
-        value_fn=lambda status: status[REFRIGERATION_STATUS_DOOR_FREEZER]
-        .get(ATTR_VALUE)
-        .rsplit(".", maxsplit=1)[-1]
-        .lower(),
+        value_fn=lambda status: format_state_attr(
+            status[REFRIGERATION_STATUS_DOOR_FREEZER].get(ATTR_VALUE)
+        ),
         status_data_fn=lambda device: StatusData(
             **device.appliance.get(f"/status/{REFRIGERATION_STATUS_DOOR_FREEZER}")
         ),
         options_fn=lambda status_data: [
-            value.rsplit(".", maxsplit=1)[-1].lower()
-            for value in status_data.constraints.allowedvalues
+            format_state_attr(value) for value in status_data.constraints.allowedvalues
         ],
-        exists_fn=lambda device: bool(
-            device.appliance.status.get(REFRIGERATION_STATUS_DOOR_FREEZER)
+        exists_fn=lambda device: device.appliance.status.get(
+            REFRIGERATION_STATUS_DOOR_FREEZER, False
         ),
     ),
     HomeConnectSensorEntityDescription(
         state_key=REFRIGERATION_STATUS_DOOR_REFRIGERATOR,
-        key="Refrigerator Door",
+        key="refrigerator_door",
         translation_key="door_sensor",
         translation_placeholders={"name": "Refrigerator Door"},
         value_fn=lambda status: status[REFRIGERATION_STATUS_DOOR_REFRIGERATOR]
@@ -123,11 +137,10 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
             **device.appliance.get(f"/status/{REFRIGERATION_STATUS_DOOR_REFRIGERATOR}")
         ),
         options_fn=lambda status_data: [
-            value.rsplit(".", maxsplit=1)[-1].lower()
-            for value in status_data.constraints.allowedvalues
+            format_state_attr(value) for value in status_data.constraints.allowedvalues
         ],
-        exists_fn=lambda device: bool(
-            device.appliance.status.get(REFRIGERATION_STATUS_DOOR_REFRIGERATOR)
+        exists_fn=lambda device: device.appliance.status.get(
+            REFRIGERATION_STATUS_DOOR_REFRIGERATOR, False
         ),
     ),
     HomeConnectSensorEntityDescription(
@@ -143,10 +156,9 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
             **device.appliance.get(f"/status/{BSH_DOOR_STATE}")
         ),
         options_fn=lambda status_data: [
-            value.rsplit(".", maxsplit=1)[-1].lower()
-            for value in status_data.constraints.allowedvalues
+            format_state_attr(value) for value in status_data.constraints.allowedvalues
         ],
-        exists_fn=lambda device: bool(device.appliance.status.get(BSH_DOOR_STATE)),
+        exists_fn=lambda device: device.appliance.status.get(BSH_DOOR_STATE, False),
     ),
     HomeConnectSensorEntityDescription(
         state_key=BSH_REMAINING_PROGRAM_TIME,
@@ -155,14 +167,16 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         translation_key="event_sensor",
         translation_placeholders={
             "name": "Remaining Program Time",
-            "remaining_program_time": "Remaining Program Time",
-            "completed_program_time": "Completed Program Time",
         },
         value_fn=lambda status: dt_util.utcnow()
-        + timedelta(seconds=status.get(BSH_REMAINING_PROGRAM_TIME, {}).get(ATTR_VALUE))
-        if update_event_state(status) and status.get(BSH_REMAINING_PROGRAM_TIME)
+        + timedelta(seconds=remaining_time.get(ATTR_VALUE))
+        if (remaining_time := status.get(BSH_REMAINING_PROGRAM_TIME, False))
+        and update_event_state(status)
+        # Reset state: Remove entry from appliance.status
+        else remove_from_status(status, BSH_REMAINING_PROGRAM_TIME)
+        if remaining_time
         else None,
-        exists_fn=lambda device: bool(device.programs),
+        exists_fn=lambda device: getattr(device, "programs", False),
     ),
     HomeConnectSensorEntityDescription(
         state_key=BSH_PROGRAM_PROGRESS,
@@ -174,10 +188,14 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         },
         native_unit_of_measurement=PERCENTAGE,
         icon="mdi:progress-clock",
-        value_fn=lambda status: status.get(BSH_PROGRAM_PROGRESS, {}).get(ATTR_VALUE)
-        if update_event_state(status)
+        value_fn=lambda status: progress.get(ATTR_VALUE)
+        if (progress := status.get(BSH_PROGRAM_PROGRESS, False))
+        and update_event_state(status)
+        # Reset state: Remove entry from appliance.status
+        else remove_from_status(status, BSH_PROGRAM_PROGRESS)
+        if progress
         else None,
-        exists_fn=lambda device: bool(device.programs),
+        exists_fn=lambda device: getattr(device, "programs", False),
     ),
     HomeConnectSensorEntityDescription(
         state_key=BSH_OPERATION_STATE,
@@ -188,14 +206,18 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
             "name": "Operation State",
         },
         options_fn=lambda _: [
-            state.rsplit(".", maxsplit=1)[-1].lower()
-            for state in BSH_OPERATION_STATE_ENUM
+            format_state_attr(state) for state in BSH_OPERATION_STATE_ENUM
         ],
-        value_fn=lambda status: status[BSH_OPERATION_STATE]
-        .get(ATTR_VALUE)
-        .rsplit(".", maxsplit=1)[-1]
-        .lower(),
-        exists_fn=lambda device: bool(device.appliance.status.get(BSH_OPERATION_STATE)),
+        value_fn=lambda status: format_state_attr(value)
+        if (value := status[BSH_OPERATION_STATE][ATTR_VALUE])
+        != BSH_OPERATION_STATE_DELAYED_START
+        # Force state: An event STATUS with state 'Run' is not sent when there is a 'DelayedStart'
+        else format_state_attr(BSH_OPERATION_STATE_RUN)
+        if program_running(status)
+        else format_state_attr(value),
+        exists_fn=lambda device: device.appliance.status.get(
+            BSH_OPERATION_STATE, False
+        ),
     ),
     HomeConnectSensorEntityDescription(
         state_key=COOKING_CURRENT_CAVITY_TEMP,
@@ -206,9 +228,9 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
             "name": "Current Cavity Temperature",
         },
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        value_fn=lambda status: status[COOKING_CURRENT_CAVITY_TEMP].get(ATTR_VALUE),
-        exists_fn=lambda device: bool(
-            device.appliance.status.get(COOKING_CURRENT_CAVITY_TEMP)
+        value_fn=lambda status: status[COOKING_CURRENT_CAVITY_TEMP][ATTR_VALUE],
+        exists_fn=lambda device: device.appliance.status.get(
+            COOKING_CURRENT_CAVITY_TEMP, False
         ),
     ),
 )
@@ -258,16 +280,12 @@ class HomeConnectSensor(HomeConnectEntity, SensorEntity):
         self._attr_icon = self.entity_description.icon
         _LOGGER.debug("Status Data: %s", status_data)
         self._status_data = status_data
+        self._attr_options = self.entity_description.options_fn(self._status_data)
 
     @property
     def available(self) -> bool:
         """Return true if the sensor is available."""
         return self._attr_native_value is not None
-
-    @cached_property
-    def options(self) -> list | None:
-        """Return a list valid states for ENUM device_class or None otherwise."""
-        return self.entity_description.options_fn(self._status_data)
 
     async def async_update(self) -> None:
         """Update the sensor's status."""
@@ -276,6 +294,6 @@ class HomeConnectSensor(HomeConnectEntity, SensorEntity):
         )
         _LOGGER.debug(
             "Updated: %s, new state: %s",
-            self.device.appliance.haId,
+            self._attr_unique_id,
             self._attr_native_value,
         )
