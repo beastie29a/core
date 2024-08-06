@@ -21,6 +21,7 @@ from homeassistant.util import Throttle
 
 from . import api
 from .const import (
+    ATTR_ENDPOINT,
     ATTR_KEY,
     ATTR_PROGRAM,
     ATTR_UNIT,
@@ -55,6 +56,7 @@ SERVICE_SETTING_SCHEMA = vol.Schema(
 SERVICE_GET_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_DEVICE_ID): str,
+        vol.Required(ATTR_ENDPOINT): str,
         vol.Required(ATTR_KEY): str,
     }
 )
@@ -136,6 +138,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         value = call.data.get(ATTR_VALUE)
         unit = call.data.get(ATTR_UNIT)
         device_id = call.data[ATTR_DEVICE_ID]
+        endpoint = call.data.get(ATTR_ENDPOINT)
 
         appliance = _get_appliance_by_device_id(hass, device_id)
         if unit is not None:
@@ -150,8 +153,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             )
         else:
             await hass.async_add_executor_job(
-                getattr(appliance, method),
-                key,
+                getattr(appliance, method), f"/{endpoint}/{key}"
             )
 
     async def async_service_option_active(call):

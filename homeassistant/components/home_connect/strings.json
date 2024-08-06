@@ -164,6 +164,10 @@
           "name": "Device ID",
           "description": "[%key:component::home_connect::services::start_program::fields::device_id::description%]"
         },
+        "endpoint": {
+          "name": "Endpoint",
+          "description": "API endpoint to access."
+        },
         "key": { "name": "Key", "description": "Key of the setting." }
       }
     }

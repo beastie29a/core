@@ -152,8 +152,7 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         translation_placeholders={"name": "Refrigerator Door"},
         value_fn=lambda status: status[REFRIGERATION_STATUS_DOOR_REFRIGERATOR]
         .get(ATTR_VALUE)
-        .rsplit(".", maxsplit=1)[-1]
-        .lower(),
+        .rsplit(".", maxsplit=1)[-1],
         status_data_fn=lambda device: StatusData(
             **device.appliance.get(f"/status/{REFRIGERATION_STATUS_DOOR_REFRIGERATOR}")
         ),
@@ -207,8 +206,7 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         translation_placeholders={"name": "Door"},
         value_fn=lambda status: status[BSH_DOOR_STATE]
         .get(ATTR_VALUE)
-        .rsplit(".", maxsplit=1)[-1]
-        .lower(),
+        .rsplit(".", maxsplit=1)[-1],
         status_data_fn=lambda device: StatusData(
             **device.appliance.get(f"/status/{BSH_DOOR_STATE}")
         ),

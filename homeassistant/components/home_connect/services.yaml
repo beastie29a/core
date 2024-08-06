@@ -118,8 +118,23 @@ get_data:
       selector:
         device:
           integration: home_connect
+    endpoint:
+      required: false
+      default: status
+      example: status
+      selector:
+        select:
+          options:
+            - status
+            - settings
+            - programs
+            - programs/available
+            - programs/active
+            - programs/active/options
+            - programs/selected
+            - programs/selected/options
     key:
-      example: "/settings/BSH.Common.Setting.ChildLock"
-      required: true
+      example: "BSH.Common.Setting.ChildLock"
+      required: false
       selector:
         text:

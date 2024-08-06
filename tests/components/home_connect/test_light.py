@@ -151,7 +151,7 @@ async def test_light(
             "Hood",
         ),
         (
-            "light.fridgefreezer_externallight",
+            "light.fridgefreezer_external_light",
             {
                 REFRIGERATION_EXTERNAL_LIGHT_POWER: {
                     "value": True,
