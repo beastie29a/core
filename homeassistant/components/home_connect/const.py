@@ -122,6 +122,8 @@ SERVICE_SETTING = "change_setting"
 SERVICE_GET_DATA = "get_data"
 SERVICE_START_PROGRAM = "start_program"
 
+SERVICE_EXCEPTION_RESPONSE = {"error": "Service call failed."}
+
 ATTR_AMBIENT = "ambient"
 ATTR_DESC = "desc"
 ATTR_DEVICE = "device"

@@ -5,12 +5,18 @@ from __future__ import annotations
 from datetime import timedelta
 import logging
 
+from homeconnect.api import HomeConnectError
 from requests import HTTPError
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_DEVICE_ID, CONF_DEVICE, Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import (
+    HomeAssistant,
+    ServiceCall,
+    ServiceResponse,
+    SupportsResponse,
+)
 from homeassistant.helpers import (
     config_entry_oauth2_flow,
     config_validation as cv,
@@ -57,7 +63,7 @@ SERVICE_GET_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_DEVICE_ID): str,
         vol.Required(ATTR_ENDPOINT): str,
-        vol.Required(ATTR_KEY): str,
+        vol.Optional(ATTR_KEY): str,
     }
 )
 
@@ -138,7 +144,6 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         value = call.data.get(ATTR_VALUE)
         unit = call.data.get(ATTR_UNIT)
         device_id = call.data[ATTR_DEVICE_ID]
-        endpoint = call.data.get(ATTR_ENDPOINT)
 
         appliance = _get_appliance_by_device_id(hass, device_id)
         if unit is not None:
@@ -151,10 +156,27 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
                 key,
                 value,
             )
-        else:
-            await hass.async_add_executor_job(
-                getattr(appliance, method), f"/{endpoint}/{key}"
+
+    async def _async_service_get_data_response(
+        call: ServiceCall, method: str
+    ) -> ServiceResponse:
+        """Execute calls to services taking a key and value."""
+        device_id = call.data[ATTR_DEVICE_ID]
+        endpoint = call.data[ATTR_ENDPOINT]
+        key = call.data.get(ATTR_KEY)
+
+        appliance = _get_appliance_by_device_id(hass, device_id)
+
+        if key:
+            endpoint = f"{endpoint}/{key}"
+
+        try:
+            return await hass.async_add_executor_job(
+                getattr(appliance, method), "/" + endpoint
             )
+        except HomeConnectError as err:
+            _LOGGER.error("Service call failed: %s", err)
+            raise
 
     async def async_service_option_active(call):
         """Service for setting an option for an active program."""
@@ -168,9 +190,9 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         """Service for changing a setting."""
         await _async_service_key_value(call, "set_setting")
 
-    async def async_service_get_data(call):
+    async def async_service_get_data(call: ServiceCall) -> ServiceResponse:
         """Service for changing a setting."""
-        await _async_service_key_value(call, "get")
+        return await _async_service_get_data_response(call, "get")
 
     async def async_service_pause_program(call):
         """Service for pausing a program."""
@@ -204,7 +226,11 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         DOMAIN, SERVICE_SETTING, async_service_setting, schema=SERVICE_SETTING_SCHEMA
     )
     hass.services.async_register(
-        DOMAIN, SERVICE_GET_DATA, async_service_get_data, schema=SERVICE_GET_DATA_SCHEMA
+        DOMAIN,
+        SERVICE_GET_DATA,
+        async_service_get_data,
+        schema=SERVICE_GET_DATA_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
     )
     hass.services.async_register(
         DOMAIN,

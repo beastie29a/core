@@ -119,7 +119,7 @@ get_data:
         device:
           integration: home_connect
     endpoint:
-      required: false
+      required: true
       default: status
       example: status
       selector:
@@ -133,6 +133,8 @@ get_data:
             - programs/active/options
             - programs/selected
             - programs/selected/options
+            - commands
+            - images
     key:
       example: "BSH.Common.Setting.ChildLock"
       required: false
