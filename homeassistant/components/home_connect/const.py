@@ -44,6 +44,12 @@ BSH_OPERATION_STATE_ENUM = [
     "BSH.Common.EnumType.OperationState.Aborting",
 ]
 
+COFFEE_EVENT_BEAN_CONTAINER_EMPTY = (
+    "ConsumerProducts.CoffeeMaker.Event.BeanContainerEmpty"
+)
+COFFEE_EVENT_WATER_TANK_EMPTY = "ConsumerProducts.CoffeeMaker.Event.WaterTankEmpty"
+COFFEE_EVENT_DRIP_TRAY_FULL = "ConsumerProducts.CoffeeMaker.Event.DripTrayFull"
+
 COOKING_LIGHTING = "Cooking.Common.Setting.Lighting"
 COOKING_LIGHTING_BRIGHTNESS = "Cooking.Common.Setting.LightingBrightness"
 

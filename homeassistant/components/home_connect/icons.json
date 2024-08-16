@@ -43,6 +43,30 @@
           "present": "mdi:thermometer-alert",
           "confirmed": "mdi:thermometer-check"
         }
+      },
+      "alarm_sensor_coffee_bean_container": {
+        "default": "mdi:thermometer",
+        "state": {
+          "off": "mdi:thermometer",
+          "present": "mdi:thermometer-alert",
+          "confirmed": "mdi:thermometer-check"
+        }
+      },
+      "alarm_sensor_coffee_water_tank": {
+        "default": "mdi:water",
+        "state": {
+          "off": "mdi:water",
+          "present": "mdi:water-alert",
+          "confirmed": "mdi:water-check"
+        }
+      },
+      "alarm_sensor_coffee_drip_tray": {
+        "default": "mdi:tray",
+        "state": {
+          "off": "mdi:tray",
+          "present": "mdi:tray-alert",
+          "confirmed": "mdi:tray-full"
+        }
       }
     }
   }

@@ -2,9 +2,9 @@
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import date, datetime, timedelta
+from decimal import Decimal
 import logging
-from typing import Any
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -15,6 +15,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.typing import StateType
 import homeassistant.util.dt as dt_util
 
 from .api import HomeConnectDevice
@@ -32,6 +33,9 @@ from .const import (
     BSH_OPERATION_STATE_RUN,
     BSH_PROGRAM_PROGRESS,
     BSH_REMAINING_PROGRAM_TIME,
+    COFFEE_EVENT_BEAN_CONTAINER_EMPTY,
+    COFFEE_EVENT_DRIP_TRAY_FULL,
+    COFFEE_EVENT_WATER_TANK_EMPTY,
     COOKING_CURRENT_CAVITY_TEMP,
     DOMAIN,
     REFRIGERATION_EVENT_DOOR_ALARM_FREEZER,
@@ -83,7 +87,7 @@ class HomeConnectSensorEntityDescription(SensorEntityDescription):
     device_class: SensorDeviceClass | None = SensorDeviceClass.ENUM
     state_key: str | None = None
     sign: int = 1
-    value_fn: Callable[[dict], Any] = lambda _: None
+    value_fn: Callable[[dict], StateType | date | datetime | Decimal] = lambda _: None
     status_data_fn: Callable[[HomeConnectDevice], StatusData] = lambda _: StatusData(
         key="",
         value={},
@@ -98,9 +102,9 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         key="Chiller Door",
         translation_key="door_sensor",
         translation_placeholders={"name": "Chiller Door"},
-        value_fn=lambda status: format_state_attr(
-            status[REFRIGERATION_STATUS_DOOR_CHILLER].get(ATTR_VALUE)
-        ),
+        value_fn=lambda status: format_state_attr(state)
+        if (state := status.get(REFRIGERATION_STATUS_DOOR_CHILLER, {}).get(ATTR_VALUE))
+        else None,
         status_data_fn=lambda device: StatusData(
             **device.appliance.get(f"/status/{REFRIGERATION_STATUS_DOOR_CHILLER}")
         ),
@@ -115,9 +119,9 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         key="Freezer Door",
         translation_key="door_sensor",
         translation_placeholders={"name": "Freezer Door"},
-        value_fn=lambda status: format_state_attr(
-            status[REFRIGERATION_STATUS_DOOR_FREEZER].get(ATTR_VALUE)
-        ),
+        value_fn=lambda status: format_state_attr(state)
+        if (state := status.get(REFRIGERATION_STATUS_DOOR_FREEZER, {}).get(ATTR_VALUE))
+        else None,
         status_data_fn=lambda device: StatusData(
             **device.appliance.get(f"/status/{REFRIGERATION_STATUS_DOOR_FREEZER}")
         ),
@@ -125,6 +129,27 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
             format_state_attr(value) for value in status_data.constraints.allowedvalues
         ],
         exists_fn=lambda device: REFRIGERATION_STATUS_DOOR_FREEZER
+        in device.appliance.status,
+    ),
+    HomeConnectSensorEntityDescription(
+        state_key=REFRIGERATION_STATUS_DOOR_REFRIGERATOR,
+        key="Refrigerator Door",
+        translation_key="door_sensor",
+        translation_placeholders={"name": "Refrigerator Door"},
+        value_fn=lambda status: format_state_attr(state)
+        if (
+            state := status.get(REFRIGERATION_STATUS_DOOR_REFRIGERATOR, {}).get(
+                ATTR_VALUE
+            )
+        )
+        else None,
+        status_data_fn=lambda device: StatusData(
+            **device.appliance.get(f"/status/{REFRIGERATION_STATUS_DOOR_REFRIGERATOR}")
+        ),
+        options_fn=lambda status_data: [
+            format_state_attr(value) for value in status_data.constraints.allowedvalues
+        ],
+        exists_fn=lambda device: REFRIGERATION_STATUS_DOOR_REFRIGERATOR
         in device.appliance.status,
     ),
     HomeConnectSensorEntityDescription(
@@ -142,25 +167,7 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         options_fn=lambda _: [
             format_state_attr(value) for value in BSH_EVENT_PRESENT_STATE_ENUM
         ],
-        exists_fn=lambda device: REFRIGERATION_STATUS_DOOR_FREEZER
-        in device.appliance.status,
-    ),
-    HomeConnectSensorEntityDescription(
-        state_key=REFRIGERATION_STATUS_DOOR_REFRIGERATOR,
-        key="Refrigerator Door",
-        translation_key="door_sensor",
-        translation_placeholders={"name": "Refrigerator Door"},
-        value_fn=lambda status: status[REFRIGERATION_STATUS_DOOR_REFRIGERATOR]
-        .get(ATTR_VALUE)
-        .rsplit(".", maxsplit=1)[-1],
-        status_data_fn=lambda device: StatusData(
-            **device.appliance.get(f"/status/{REFRIGERATION_STATUS_DOOR_REFRIGERATOR}")
-        ),
-        options_fn=lambda status_data: [
-            format_state_attr(value) for value in status_data.constraints.allowedvalues
-        ],
-        exists_fn=lambda device: REFRIGERATION_STATUS_DOOR_REFRIGERATOR
-        in device.appliance.status,
+        exists_fn=lambda device: device.appliance.type in ("FridgeFreezer", "Freezer"),
     ),
     HomeConnectSensorEntityDescription(
         state_key=REFRIGERATION_EVENT_DOOR_ALARM_REFRIGERATOR,
@@ -177,8 +184,8 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         options_fn=lambda _: [
             format_state_attr(value) for value in BSH_EVENT_PRESENT_STATE_ENUM
         ],
-        exists_fn=lambda device: REFRIGERATION_STATUS_DOOR_REFRIGERATOR
-        in device.appliance.status,
+        exists_fn=lambda device: device.appliance.type
+        in ("FridgeFreezer", "Refrigerator"),
     ),
     HomeConnectSensorEntityDescription(
         state_key=REFRIGERATION_EVENT_TEMP_ALARM_FREEZER,
@@ -195,9 +202,58 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
         options_fn=lambda _: [
             format_state_attr(value) for value in BSH_EVENT_PRESENT_STATE_ENUM
         ],
-        exists_fn=lambda device: bool(
-            device.appliance.type in ("FridgeFreezer", "Freezer")
+        exists_fn=lambda device: device.appliance.type in ("FridgeFreezer", "Freezer"),
+    ),
+    HomeConnectSensorEntityDescription(
+        state_key=COFFEE_EVENT_BEAN_CONTAINER_EMPTY,
+        key="Bean Container Empty",
+        translation_key="alarm_sensor_coffee_bean_container",
+        translation_placeholders={
+            "name": "Bean Container Empty",
+        },
+        value_fn=lambda status: format_state_attr(
+            status.get(COFFEE_EVENT_BEAN_CONTAINER_EMPTY, {}).get(
+                ATTR_VALUE, BSH_EVENT_PRESENT_STATE_OFF
+            )
         ),
+        options_fn=lambda _: [
+            format_state_attr(value) for value in BSH_EVENT_PRESENT_STATE_ENUM
+        ],
+        exists_fn=lambda device: device.appliance.type == "CoffeeMaker",
+    ),
+    HomeConnectSensorEntityDescription(
+        state_key=COFFEE_EVENT_WATER_TANK_EMPTY,
+        key="Water Tank Empty",
+        translation_key="alarm_sensor_coffee_water_tank",
+        translation_placeholders={
+            "name": "Water Tank Empty",
+        },
+        value_fn=lambda status: format_state_attr(
+            status.get(COFFEE_EVENT_WATER_TANK_EMPTY, {}).get(
+                ATTR_VALUE, BSH_EVENT_PRESENT_STATE_OFF
+            )
+        ),
+        options_fn=lambda _: [
+            format_state_attr(value) for value in BSH_EVENT_PRESENT_STATE_ENUM
+        ],
+        exists_fn=lambda device: device.appliance.type == "CoffeeMaker",
+    ),
+    HomeConnectSensorEntityDescription(
+        state_key=COFFEE_EVENT_DRIP_TRAY_FULL,
+        key="Drip Tray Full",
+        translation_key="alarm_sensor_coffee_drip_trahomeassistant/components/home_connect/icons.jsony",
+        translation_placeholders={
+            "name": "Drip Tray Ful",
+        },
+        value_fn=lambda status: format_state_attr(
+            status.get(COFFEE_EVENT_DRIP_TRAY_FULL, {}).get(
+                ATTR_VALUE, BSH_EVENT_PRESENT_STATE_OFF
+            )
+        ),
+        options_fn=lambda _: [
+            format_state_attr(value) for value in BSH_EVENT_PRESENT_STATE_ENUM
+        ],
+        exists_fn=lambda device: device.appliance.type == "CoffeeMaker",
     ),
     HomeConnectSensorEntityDescription(
         state_key=BSH_DOOR_STATE,
