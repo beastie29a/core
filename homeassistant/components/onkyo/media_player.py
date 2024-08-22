@@ -1,6 +1,7 @@
 """Support for Onkyo Receivers."""
 
 import asyncio
+from dataclasses import dataclass
 import logging
 from typing import Any
 
@@ -125,6 +126,16 @@ PLATFORM_SCHEMA = MEDIA_PLAYER_PLATFORM_SCHEMA.extend(
         },
     }
 )
+
+
+@dataclass
+class ReceiverInfo:
+    """Onkyo Receiver information."""
+
+    host: str
+    port: int
+    model_name: str
+    identifier: str
 
 
 async def async_setup_platform(
@@ -371,7 +382,7 @@ class OnkyoMediaPlayer(MediaPlayerEntity):
         will give 80% volume on the receiver. Then we convert that to the correct
         scale for the receiver.
         """
-        # HA_VOL * (MAX VOL / 100) * MAX_RECEIVER_VOL
+        # HA_VOL * (MAX VOL / 100) * VOL_RESOLUTION
         self._update_receiver(
             "volume", int(volume * (self._max_volume / 100) * self._volume_resolution)
         )
@@ -451,7 +462,7 @@ class OnkyoMediaPlayer(MediaPlayerEntity):
                 self._attr_extra_state_attributes.pop(ATTR_VIDEO_OUT, None)
         elif command in ["volume", "master-volume"] and value != "N/A":
             self._supports_volume = True
-            # AMP_VOL / (MAX_RECEIVER_VOL * (MAX_VOL / 100))
+            # AMP_VOL / (VOL_RESOLUTION * (MAX_VOL / 100))
             self._attr_volume_level = value / (
                 self._volume_resolution * self._max_volume / 100
             )
