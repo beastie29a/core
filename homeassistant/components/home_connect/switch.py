@@ -37,7 +37,7 @@ class HomeConnectSwitchEntityDescription(SwitchEntityDescription):
 
     on_key: str | None = None
     value_fn: Callable[[dict], bool] = lambda _: True
-    exist_fn: Callable[[HomeConnectDevice], bool] = lambda _: False
+    exists_fn: Callable[[HomeConnectDevice], bool] = lambda _: False
 
 
 SWITCHES: tuple[HomeConnectSwitchEntityDescription, ...] = (
@@ -47,7 +47,7 @@ SWITCHES: tuple[HomeConnectSwitchEntityDescription, ...] = (
         value_fn=lambda status: status.get(REFRIGERATION_SUPERMODEFREEZER, {}).get(
             ATTR_VALUE, False
         ),
-        exist_fn=lambda device: REFRIGERATION_SUPERMODEFREEZER
+        exists_fn=lambda device: REFRIGERATION_SUPERMODEFREEZER
         in device.appliance.status,
     ),
     HomeConnectSwitchEntityDescription(
@@ -56,7 +56,7 @@ SWITCHES: tuple[HomeConnectSwitchEntityDescription, ...] = (
         value_fn=lambda status: status.get(REFRIGERATION_SUPERMODEREFRIGERATOR, {}).get(
             ATTR_VALUE, False
         ),
-        exist_fn=lambda device: REFRIGERATION_SUPERMODEREFRIGERATOR
+        exists_fn=lambda device: REFRIGERATION_SUPERMODEREFRIGERATOR
         in device.appliance.status,
     ),
     HomeConnectSwitchEntityDescription(
@@ -66,7 +66,7 @@ SWITCHES: tuple[HomeConnectSwitchEntityDescription, ...] = (
         value_fn=lambda status: status.get(REFRIGERATION_DISPENSER, {}).get(
             ATTR_VALUE, False
         ),
-        exist_fn=lambda device: REFRIGERATION_DISPENSER in device.appliance.status,
+        exists_fn=lambda device: REFRIGERATION_DISPENSER in device.appliance.status,
     ),
 )
 
@@ -93,7 +93,7 @@ async def async_setup_entry(
                     device=device_dict[CONF_DEVICE], entity_description=description
                 )
                 for description in SWITCHES
-                if description.exist_fn(device_dict[CONF_DEVICE])
+                if description.exists_fn(device_dict[CONF_DEVICE])
             ]
             entities += entity_list
         return entities

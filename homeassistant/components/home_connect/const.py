@@ -20,7 +20,10 @@ BSH_ACTIVE_PROGRAM = "BSH.Common.Root.ActiveProgram"
 BSH_REMOTE_CONTROL_ACTIVATION_STATE = "BSH.Common.Status.RemoteControlActive"
 BSH_REMOTE_START_ALLOWANCE_STATE = "BSH.Common.Status.RemoteControlStartAllowed"
 BSH_CHILD_LOCK_STATE = "BSH.Common.Setting.ChildLock"
+BSH_TEMPERATURE_UNIT = "BSH.Common.Setting.TemperatureUnit"
 
+BSH_TEMPERATURE_UNIT_CELSIUS = "BSH.Common.EnumType.TemperatureUnit.Celsius"
+BSH_TEMPERATURE_UNIT_FAHRENHEIT = "BSH.Common.EnumType.TemperatureUnit.Fahrenheit"
 
 BSH_OPERATION_STATE = "BSH.Common.Status.OperationState"
 BSH_OPERATION_STATE_RUN = "BSH.Common.EnumType.OperationState.Run"
@@ -81,6 +84,34 @@ REFRIGERATION_EVENT_DOOR_ALARM_FREEZER = (
 REFRIGERATION_EVENT_TEMP_ALARM_FREEZER = (
     "Refrigeration.FridgeFreezer.Event.TemperatureAlarmFreezer"
 )
+
+REFRIGERATION_CHILLERLEFT_SETPOINTTEMPERATURE = (
+    "Refrigeration.Common.Setting.ChillerLeft.SetpointTemperature"
+)
+REFRIGERATION_CHILLERCOMMON_SETPOINTTEMPERATURE = (
+    "Refrigeration.Common.Setting.ChillerCommon.SetpointTemperature"
+)
+REFRIGERATION_CHILLERRIGHT_SETPOINTTEMPERATURE = (
+    "Refrigeration.Common.Setting.ChillerRight.SetpointTemperature"
+)
+REFRIGERATION_FRIDGEFREEZER_SETPOINTTEMPERATUREREFRIGERATOR = (
+    "Refrigeration.FridgeFreezer.Setting.SetpointTemperatureRefrigerator"
+)
+REFRIGERATION_FRIDGEFREEZER_SETPOINTTEMPERATUREFREEZER = (
+    "Refrigeration.FridgeFreezer.Setting.SetpointTemperatureFreezer"
+)
+REFRIGERATION_BOTTLECOOLER_SETPOINTTEMPERATURE = (
+    "Refrigeration.Common.Setting.BottleCooler.SetpointTemperature"
+)
+
+REFRIGERATION_WINECOMPARTMENT_SETPOINTTEMPERATURE = (
+    "Refrigeration.Common.Setting.WineCompartment.SetpointTemperature"
+)
+
+REFRIGERATION_ECO_MODE = "Refrigeration.Common.Setting.EcoMode"
+REFRIGERATION_SABBATH_MODE = "Refrigeration.Common.Setting.SabbathMode "
+REFRIGERATION_VACATION_MODE = "Refrigeration.Common.Setting.VacationMode"
+REFRIGERATION_FRESH_MODE = "Refrigeration.Common.Setting.FreshMode"
 
 BSH_EVENT_PRESENT_STATE_PRESENT = "BSH.Common.EnumType.EventPresentState.Present"
 BSH_EVENT_PRESENT_STATE_CONFIRMED = "BSH.Common.EnumType.EventPresentState.Confirmed"

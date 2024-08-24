@@ -18,7 +18,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 import homeassistant.util.dt as dt_util
 
-from .api import HomeConnectDevice
+from .api import ConfigEntryAuth, HomeConnectDevice
 from .const import (
     ATTR_DEVICE,
     ATTR_VALUE,
@@ -353,7 +353,7 @@ async def async_setup_entry(
     def get_entities():
         """Get a list of entities."""
         entities = []
-        hc_api = hass.data[DOMAIN][config_entry.entry_id]
+        hc_api: ConfigEntryAuth = hass.data[DOMAIN][config_entry.entry_id]
         for device_dict in hc_api.devices:
             device: HomeConnectDevice = device_dict[ATTR_DEVICE]
             entities += [
