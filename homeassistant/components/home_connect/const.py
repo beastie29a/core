@@ -66,6 +66,7 @@ REFRIGERATION_EXTERNAL_LIGHT_POWER = "Refrigeration.Common.Setting.Light.Externa
 REFRIGERATION_EXTERNAL_LIGHT_BRIGHTNESS = (
     "Refrigeration.Common.Setting.Light.External.Brightness"
 )
+
 REFRIGERATION_SUPERMODEFREEZER = "Refrigeration.FridgeFreezer.Setting.SuperModeFreezer"
 REFRIGERATION_SUPERMODEREFRIGERATOR = (
     "Refrigeration.FridgeFreezer.Setting.SuperModeRefrigerator"
@@ -122,7 +123,6 @@ BSH_EVENT_PRESENT_STATE_ENUM = (
     BSH_EVENT_PRESENT_STATE_CONFIRMED,
     BSH_EVENT_PRESENT_STATE_OFF,
 )
-
 
 BSH_AMBIENT_LIGHT_ENABLED = "BSH.Common.Setting.AmbientLightEnabled"
 BSH_AMBIENT_LIGHT_BRIGHTNESS = "BSH.Common.Setting.AmbientLightBrightness"

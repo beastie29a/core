@@ -18,6 +18,7 @@ from homeassistant.components.home_connect.const import (
 from homeassistant.components.switch import DOMAIN
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import (
+    ATTR_ENTITY_ID,
     SERVICE_TURN_OFF,
     SERVICE_TURN_ON,
     STATE_OFF,
@@ -278,7 +279,7 @@ async def test_ent_desc_switch_functionality(
 
     appliance.status.update(status)
     await hass.services.async_call(
-        DOMAIN, service, {"entity_id": entity_id}, blocking=True
+        DOMAIN, service, {ATTR_ENTITY_ID: entity_id}, blocking=True
     )
     assert hass.states.is_state(entity_id, state)
 
@@ -337,6 +338,6 @@ async def test_ent_desc_switch_exception_handling(
 
     problematic_appliance.status.update(status)
     await hass.services.async_call(
-        DOMAIN, service, {"entity_id": entity_id}, blocking=True
+        DOMAIN, service, {ATTR_ENTITY_ID: entity_id}, blocking=True
     )
     assert getattr(problematic_appliance, mock_attr).call_count == 2
