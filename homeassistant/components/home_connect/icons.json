@@ -20,6 +20,9 @@
     },
     "change_setting": {
       "service": "mdi:cog"
+    },
+    "get_data": {
+      "service": "mdi:code-json"
     }
   },
   "entity": {
