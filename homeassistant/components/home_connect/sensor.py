@@ -241,9 +241,9 @@ SENSORS: tuple[HomeConnectSensorEntityDescription, ...] = (
     HomeConnectSensorEntityDescription(
         state_key=COFFEE_EVENT_DRIP_TRAY_FULL,
         key="Drip Tray Full",
-        translation_key="alarm_sensor_coffee_drip_trahomeassistant/components/home_connect/icons.jsony",
+        translation_key="alarm_sensor_coffee_drip_tray",
         translation_placeholders={
-            "name": "Drip Tray Ful",
+            "name": "Drip Tray Full",
         },
         value_fn=lambda status: format_state_attr(
             status.get(COFFEE_EVENT_DRIP_TRAY_FULL, {}).get(
