@@ -14,9 +14,15 @@ BSH_REMOTE_CONTROL_ACTIVATION_STATE = "BSH.Common.Status.RemoteControlActive"
 BSH_REMOTE_START_ALLOWANCE_STATE = "BSH.Common.Status.RemoteControlStartAllowed"
 BSH_CHILD_LOCK_STATE = "BSH.Common.Setting.ChildLock"
 
+<<<<<<< HEAD
 BSH_EVENT_PRESENT_STATE_PRESENT = "BSH.Common.EnumType.EventPresentState.Present"
 BSH_EVENT_PRESENT_STATE_CONFIRMED = "BSH.Common.EnumType.EventPresentState.Confirmed"
 BSH_EVENT_PRESENT_STATE_OFF = "BSH.Common.EnumType.EventPresentState.Off"
+=======
+BSH_TEMPERATURE_UNIT = "BSH.Common.Setting.TemperatureUnit"
+BSH_TEMPERATURE_UNIT_CELSIUS = "BSH.Common.EnumType.TemperatureUnit.Celsius"
+BSH_TEMPERATURE_UNIT_FAHRENHEIT = "BSH.Common.EnumType.TemperatureUnit.Fahrenheit"
+>>>>>>> 6051f2bf4af (Add Home Connect setpoint temp entities)
 
 BSH_OPERATION_STATE = "BSH.Common.Status.OperationState"
 BSH_OPERATION_STATE_RUN = "BSH.Common.EnumType.OperationState.Run"
@@ -38,6 +44,7 @@ REFRIGERATION_SUPERMODEREFRIGERATOR = (
 )
 REFRIGERATION_DISPENSER = "Refrigeration.Common.Setting.Dispenser.Enabled"
 
+<<<<<<< HEAD
 REFRIGERATION_STATUS_DOOR_CHILLER = "Refrigeration.Common.Status.Door.ChillerCommon"
 REFRIGERATION_STATUS_DOOR_FREEZER = "Refrigeration.Common.Status.Door.Freezer"
 REFRIGERATION_STATUS_DOOR_REFRIGERATOR = "Refrigeration.Common.Status.Door.Refrigerator"
@@ -55,6 +62,30 @@ REFRIGERATION_EVENT_TEMP_ALARM_FREEZER = (
     "Refrigeration.FridgeFreezer.Event.TemperatureAlarmFreezer"
 )
 
+=======
+REFRIGERATION_CHILLERLEFT_SETPOINTTEMPERATURE = (
+    "Refrigeration.Common.Setting.ChillerLeft.SetpointTemperature"
+)
+REFRIGERATION_CHILLERCOMMON_SETPOINTTEMPERATURE = (
+    "Refrigeration.Common.Setting.ChillerCommon.SetpointTemperature"
+)
+REFRIGERATION_CHILLERRIGHT_SETPOINTTEMPERATURE = (
+    "Refrigeration.Common.Setting.ChillerRight.SetpointTemperature"
+)
+REFRIGERATION_SETPOINTTEMPERATUREREFRIGERATOR = (
+    "Refrigeration.FridgeFreezer.Setting.SetpointTemperatureRefrigerator"
+)
+REFRIGERATION_SETPOINTTEMPERATUREFREEZER = (
+    "Refrigeration.FridgeFreezer.Setting.SetpointTemperatureFreezer"
+)
+REFRIGERATION_BOTTLECOOLER_SETPOINTTEMPERATURE = (
+    "Refrigeration.Common.Setting.BottleCooler.SetpointTemperature"
+)
+
+REFRIGERATION_WINECOMPARTMENT_SETPOINTTEMPERATURE = (
+    "Refrigeration.Common.Setting.WineCompartment.SetpointTemperature"
+)
+>>>>>>> 6051f2bf4af (Add Home Connect setpoint temp entities)
 
 BSH_AMBIENT_LIGHT_ENABLED = "BSH.Common.Setting.AmbientLightEnabled"
 BSH_AMBIENT_LIGHT_BRIGHTNESS = "BSH.Common.Setting.AmbientLightBrightness"
