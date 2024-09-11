@@ -36,6 +36,7 @@ from .const import (
     SERVICE_SETTING,
     SERVICE_START_PROGRAM,
 )
+from .coordinator import HomeConnectDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -76,7 +77,13 @@ SERVICE_PROGRAM_SCHEMA = vol.Any(
 
 SERVICE_COMMAND_SCHEMA = vol.Schema({vol.Required(ATTR_DEVICE_ID): str})
 
-PLATFORMS = [Platform.BINARY_SENSOR, Platform.LIGHT, Platform.SENSOR, Platform.SWITCH]
+PLATFORMS = [
+    Platform.BINARY_SENSOR,
+    Platform.LIGHT,
+    Platform.NUMBER,
+    Platform.SENSOR,
+    Platform.SWITCH,
+]
 
 
 def _get_appliance_by_device_id(
@@ -227,7 +234,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data[DOMAIN][entry.entry_id] = hc_api
 
-    await update_all_devices(hass, entry)
+    coordinator = HomeConnectDataUpdateCoordinator(hass, hc_api)
+
+    await coordinator.async_config_entry_first_refresh()
+
+    entry.runtime_data = coordinator
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 

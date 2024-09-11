@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "minor_version": 15,
+  "key": "core.entity_registry",
+  "data": {
+    "entities": [
+      {
+        "aliases": [],
+        "area_id": null,
+        "categories": {},
+        "capabilities": { "options": ["Open", "Closed", "Locked", "Ajar"] },
+        "config_entry_id": "94cff3db5059c68e98de339ece929563",
+        "created_at": "1970-01-01T00:00:00+00:00",
+        "device_class": null,
+        "device_id": "78432c8068117c4dd452b9fff8e87bf7",
+        "disabled_by": null,
+        "entity_category": null,
+        "enti ty_id": "sensor.bernadette_door",
+        "hidden_by": null,
+        "icon": null,
+        "id": "c9593e16df38002df262218321c7cee3",
+        "has_entity_name": false,
+        "labels": [],
+        "modified_at": "1970-01- 01T00:00:00+00:00",
+        "name": null,
+        "options": { "conversation": { "should_expose": false } },
+        "original_device_class": "enum",
+        "original_icon": null,
+        "original_name": "Bernadette Door",
+        "platform": "home_connect",
+        "supported_features": 0,
+        "translation_key": "door_sensor",
+        "unique_id": "BOSCH-B36CL80SNS-68A40E3F0937-Door",
+        "previous_unique_id": null,
+        "unit_of_measurement": null
+      }
+    ]
+  }
+}

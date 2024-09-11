@@ -45,7 +45,7 @@ PROGRAM = "LaundryCare.Dryer.Program.Mix"
 @pytest.fixture
 def platforms() -> list[str]:
     """Fixture to specify platforms to test."""
-    return [Platform.SWITCH]
+    return [Platform.NUMBER, Platform.SWITCH]
 
 
 async def test_switches(

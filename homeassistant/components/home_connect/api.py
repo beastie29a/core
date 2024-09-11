@@ -5,7 +5,7 @@ import logging
 from typing import Any
 
 import homeconnect
-from homeconnect.api import HomeConnectError
+from homeconnect.api import HomeConnectAppliance, HomeConnectError
 
 from homeassistant import config_entries, core
 from homeassistant.components.sensor import SensorDeviceClass
@@ -110,8 +110,9 @@ class HomeConnectDevice:
     # for some devices, this is instead BSH_POWER_STANDBY
     # see https://developer.home-connect.com/docs/settings/power_state
     power_off_state = BSH_POWER_OFF
+    device_id: str
 
-    def __init__(self, hass, appliance):
+    def __init__(self, hass: core.HomeAssistant, appliance: HomeConnectAppliance):
         """Initialize the device class."""
         self.hass = hass
         self.appliance = appliance

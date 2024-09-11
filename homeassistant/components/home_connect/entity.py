@@ -5,21 +5,28 @@ import logging
 from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
-from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .api import HomeConnectDevice
 from .const import DOMAIN, SIGNAL_UPDATE_ENTITIES
+from .coordinator import HomeConnectDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class HomeConnectEntity(Entity):
+class HomeConnectEntity(CoordinatorEntity[HomeConnectDataUpdateCoordinator]):
     """Generic Home Connect entity (base class)."""
 
     _attr_should_poll = False
 
-    def __init__(self, device: HomeConnectDevice, desc: str) -> None:
+    def __init__(
+        self,
+        device: HomeConnectDevice,
+        desc: str,
+        coordinator: HomeConnectDataUpdateCoordinator,
+    ) -> None:
         """Initialize the entity."""
+        super().__init__(coordinator=coordinator, context=device.device_id)
         self.device = device
         self._attr_name = f"{device.appliance.name} {desc}"
         self._attr_unique_id = f"{device.appliance.haId}-{desc}"
@@ -37,6 +44,7 @@ class HomeConnectEntity(Entity):
                 self.hass, SIGNAL_UPDATE_ENTITIES, self._update_callback
             )
         )
+        await super().async_added_to_hass()
 
     @callback
     def _update_callback(self, ha_id):

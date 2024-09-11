@@ -19,7 +19,6 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .api import ConfigEntryAuth, HomeConnectDevice
 from .const import (
     ATTR_VALUE,
-    BSH_TEMPERATURE_UNIT,
     BSH_TEMPERATURE_UNIT_CELSIUS,
     BSH_TEMPERATURE_UNIT_FAHRENHEIT,
     DOMAIN,
@@ -28,8 +27,10 @@ from .const import (
     REFRIGERATION_CHILLERLEFT_SETPOINTTEMPERATURE,
     REFRIGERATION_CHILLERRIGHT_SETPOINTTEMPERATURE,
     REFRIGERATION_SETPOINTTEMPERATUREFREEZER,
+    REFRIGERATION_SETPOINTTEMPERATUREREFRIGERATOR,
     REFRIGERATION_WINECOMPARTMENT_SETPOINTTEMPERATURE,
 )
+from .coordinator import HomeConnectDataUpdateCoordinator
 from .entity import HomeConnectEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -51,12 +52,11 @@ class HomeConnectNumberEntityDescription(NumberEntityDescription):
     exists_fn: Callable[[str, dict], bool] = (
         lambda setting_key, status: setting_key in status
     )
-    unit_fn: Callable[[dict], str | None] = lambda status: TEMPERATURE_UNIT_MAP.get(
-        status.get(BSH_TEMPERATURE_UNIT, {}).get(ATTR_VALUE), UnitOfTemperature.CELSIUS
-    )
+
     value_fn: Callable[[str, dict], float | None] = (
         lambda setting_key, status: status.get(setting_key, {}).get(ATTR_VALUE)
     )
+    cache_props: bool = True
 
 
 NUMBERS: tuple[HomeConnectNumberEntityDescription, ...] = (
@@ -74,7 +74,7 @@ NUMBERS: tuple[HomeConnectNumberEntityDescription, ...] = (
     ),
     HomeConnectNumberEntityDescription(
         key="Refrigerator Temperature",
-        setting_key=REFRIGERATION_SETPOINTTEMPERATUREFREEZER,
+        setting_key=REFRIGERATION_SETPOINTTEMPERATUREREFRIGERATOR,
     ),
     HomeConnectNumberEntityDescription(
         key="Freezer Temperature",
@@ -102,16 +102,19 @@ async def async_setup_entry(
         """Get a list of entities."""
         entities = []
         hc_api: ConfigEntryAuth = hass.data[DOMAIN][config_entry.entry_id]
-        entities += [
+        coordinator: HomeConnectDataUpdateCoordinator = config_entry.runtime_data
+        entities.extend(
             HomeConnectNumber(
-                device=device_dict[CONF_DEVICE], entity_description=description
+                device=device_dict[CONF_DEVICE],
+                coordinator=coordinator,
+                entity_description=description,
             )
             for device_dict in hc_api.devices
             for description in NUMBERS
             if description.exists_fn(
                 description.setting_key, device_dict[CONF_DEVICE].appliance.status
             )
-        ]
+        )
         return entities
 
     async_add_entities(await hass.async_add_executor_job(get_entities), True)
@@ -120,16 +123,18 @@ async def async_setup_entry(
 class HomeConnectNumber(HomeConnectEntity, NumberEntity):
     """Generic number class for Home Connect Settings."""
 
+    entity_description: HomeConnectNumberEntityDescription
+
     def __init__(
         self,
         device: HomeConnectDevice,
         entity_description: HomeConnectNumberEntityDescription,
+        coordinator: HomeConnectDataUpdateCoordinator,
     ) -> None:
         """Initialize the entity."""
         self.entity_description: HomeConnectNumberEntityDescription = entity_description
-        super().__init__(device, self.entity_description.key)
-        self.native_unit_of_measurement = self.entity_description.unit_fn(
-            self.device.appliance.status
+        super().__init__(
+            device=device, desc=self.entity_description.key, coordinator=coordinator
         )
 
     async def async_set_native_value(self, value: float) -> None:

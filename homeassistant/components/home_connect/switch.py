@@ -25,6 +25,7 @@ from .const import (
     REFRIGERATION_SUPERMODEFREEZER,
     REFRIGERATION_SUPERMODEREFRIGERATOR,
 )
+from .coordinator import HomeConnectDataUpdateCoordinator
 from .entity import HomeConnectDevice, HomeConnectEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -65,15 +66,31 @@ async def async_setup_entry(
         """Get a list of entities."""
         entities = []
         hc_api: ConfigEntryAuth = hass.data[DOMAIN][config_entry.entry_id]
+        coordinator: HomeConnectDataUpdateCoordinator = config_entry.runtime_data
         for device_dict in hc_api.devices:
             entity_dicts = device_dict.get(CONF_ENTITIES, {}).get("switch", [])
-            entity_list = [HomeConnectProgramSwitch(**d) for d in entity_dicts]
-            entity_list += [HomeConnectPowerSwitch(device_dict[CONF_DEVICE])]
-            entity_list += [HomeConnectChildLockSwitch(device_dict[CONF_DEVICE])]
+            entity_list = [
+                HomeConnectProgramSwitch(coordinator=coordinator, **d)
+                for d in entity_dicts
+            ]
+            entity_list += [
+                HomeConnectPowerSwitch(
+                    device_dict[CONF_DEVICE], coordinator=coordinator
+                )
+            ]
+            entity_list += [
+                HomeConnectChildLockSwitch(
+                    device_dict[CONF_DEVICE], coordinator=coordinator
+                )
+            ]
             # Auto-discover entities
             hc_device: HomeConnectDevice = device_dict[CONF_DEVICE]
             entities.extend(
-                HomeConnectSwitch(device=hc_device, entity_description=description)
+                HomeConnectSwitch(
+                    device=hc_device,
+                    entity_description=description,
+                    coordinator=coordinator,
+                )
                 for description in SWITCHES
                 if description.on_key in hc_device.appliance.status
             )
@@ -94,10 +111,13 @@ class HomeConnectSwitch(HomeConnectEntity, SwitchEntity):
         self,
         device: HomeConnectDevice,
         entity_description: HomeConnectSwitchEntityDescription,
+        coordinator: HomeConnectDataUpdateCoordinator,
     ) -> None:
         """Initialize the entity."""
         self.entity_description = entity_description
-        super().__init__(device=device, desc=entity_description.key)
+        super().__init__(
+            device=device, desc=entity_description.key, coordinator=coordinator
+        )
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on setting."""
@@ -148,14 +168,16 @@ class HomeConnectSwitch(HomeConnectEntity, SwitchEntity):
 class HomeConnectProgramSwitch(HomeConnectEntity, SwitchEntity):
     """Switch class for Home Connect."""
 
-    def __init__(self, device, program_name):
+    def __init__(
+        self, device, program_name, coordinator: HomeConnectDataUpdateCoordinator
+    ) -> None:
         """Initialize the entity."""
         desc = " ".join(["Program", program_name.split(".")[-1]])
         if device.appliance.type == "WasherDryer":
             desc = " ".join(
                 ["Program", program_name.split(".")[-3], program_name.split(".")[-1]]
             )
-        super().__init__(device, desc)
+        super().__init__(device, desc, coordinator=coordinator)
         self.program_name = program_name
 
     async def async_turn_on(self, **kwargs: Any) -> None:
@@ -191,9 +213,9 @@ class HomeConnectProgramSwitch(HomeConnectEntity, SwitchEntity):
 class HomeConnectPowerSwitch(HomeConnectEntity, SwitchEntity):
     """Power switch class for Home Connect."""
 
-    def __init__(self, device):
+    def __init__(self, device, coordinator: HomeConnectDataUpdateCoordinator) -> None:
         """Initialize the entity."""
-        super().__init__(device, "Power")
+        super().__init__(device, "Power", coordinator=coordinator)
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Switch the device on."""
@@ -258,9 +280,9 @@ class HomeConnectPowerSwitch(HomeConnectEntity, SwitchEntity):
 class HomeConnectChildLockSwitch(HomeConnectEntity, SwitchEntity):
     """Child lock switch class for Home Connect."""
 
-    def __init__(self, device) -> None:
+    def __init__(self, device, coordinator: HomeConnectDataUpdateCoordinator) -> None:
         """Initialize the entity."""
-        super().__init__(device, "ChildLock")
+        super().__init__(device, "ChildLock", coordinator=coordinator)
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Switch child lock on."""
