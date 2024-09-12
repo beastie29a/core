@@ -111,3 +111,32 @@ change_setting:
       required: true
       selector:
         object:
+get_data:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: home_connect
+    endpoint:
+      required: true
+      default: status
+      example: status
+      selector:
+        select:
+          options:
+            - status
+            - settings
+            - programs
+            - programs/available
+            - programs/active
+            - programs/active/options
+            - programs/selected
+            - programs/selected/options
+            - commands
+            - images
+    key:
+      example: "BSH.Common.Setting.ChildLock"
+      required: false
+      selector:
+        text:

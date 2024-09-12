@@ -1,0 +1,18 @@
+{
+  "/status/BSH.Common.Status.DoorState": {
+    "data": {
+      "key": "BSH.Common.Status.DoorState",
+      "value": "BSH.Common.EnumType.DoorState.Closed",
+      "type": "BSH.Common.EnumType.DoorState",
+      "constraints": {
+        "allowedvalues": [
+          "BSH.Common.EnumType.DoorState.Open",
+          "BSH.Common.EnumType.DoorState.Closed",
+          "BSH.Common.EnumType.DoorState.Locked",
+          "BSH.Common.EnumType.DoorState.Ajar"
+        ],
+        "access": "read"
+      }
+    }
+  }
+}

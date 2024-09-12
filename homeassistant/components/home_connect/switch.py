@@ -78,7 +78,6 @@ async def async_setup_entry(
                 if description.on_key in hc_device.appliance.status
             )
             entities.extend(entity_list)
-
         return entities
 
     async_add_entities(await hass.async_add_executor_job(get_entities), True)
@@ -293,4 +292,8 @@ class HomeConnectChildLockSwitch(HomeConnectEntity, SwitchEntity):
         self._attr_is_on = False
         if self.device.appliance.status.get(BSH_CHILD_LOCK_STATE, {}).get(ATTR_VALUE):
             self._attr_is_on = True
-        _LOGGER.debug("Updated child lock, new state: %s", self._attr_is_on)
+        _LOGGER.debug(
+            "Updated: %s, new state: %s",
+            self._attr_unique_id,
+            self._attr_is_on,
+        )

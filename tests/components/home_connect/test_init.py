@@ -5,6 +5,7 @@ from typing import Any
 from unittest.mock import MagicMock, Mock
 
 from freezegun.api import FrozenDateTimeFactory
+from homeconnect.api import HomeConnectError
 import pytest
 from requests import HTTPError
 import requests_mock
@@ -107,6 +108,16 @@ SERVICE_PROGRAM_CALL_PARAMS = [
     },
 ]
 
+SERVICE_GET_DATA = [
+    {
+        "domain": DOMAIN,
+        "service": "get_data",
+        "service_data": {"device_id": "DEVICE_ID", "endpoint": "status", "key": ""},
+        "return_response": True,
+        "blocking": True,
+    }
+]
+
 SERVICE_APPLIANCE_METHOD_MAPPING = {
     "set_option_active": "set_options_active_program",
     "set_option_selected": "set_options_selected_program",
@@ -115,6 +126,7 @@ SERVICE_APPLIANCE_METHOD_MAPPING = {
     "resume_program": "execute_command",
     "select_program": "select_program",
     "start_program": "start_program",
+    "get_data": "get",
 }
 
 
@@ -239,7 +251,10 @@ async def test_http_error(
 
 @pytest.mark.parametrize(
     "service_call",
-    SERVICE_KV_CALL_PARAMS + SERVICE_COMMAND_CALL_PARAMS + SERVICE_PROGRAM_CALL_PARAMS,
+    SERVICE_KV_CALL_PARAMS
+    + SERVICE_COMMAND_CALL_PARAMS
+    + SERVICE_PROGRAM_CALL_PARAMS
+    + SERVICE_GET_DATA,
 )
 @pytest.mark.usefixtures("bypass_throttle")
 async def test_services(
@@ -294,3 +309,33 @@ async def test_services_exception(
 
     with pytest.raises(ValueError):
         await hass.services.async_call(**service_call)
+
+
+@pytest.mark.usefixtures("bypass_throttle")
+async def test_services_response_exception_handler(
+    hass: HomeAssistant,
+    device_registry: dr.DeviceRegistry,
+    config_entry: MockConfigEntry,
+    integration_setup: Callable[[], Awaitable[bool]],
+    setup_credentials: None,
+    get_appliances: MagicMock,
+    appliance: Mock,
+) -> None:
+    """Handle exception and return a message to the user of type ServiceResponse."""
+    get_appliances.return_value = [appliance]
+    assert config_entry.state == ConfigEntryState.NOT_LOADED
+    assert await integration_setup()
+    assert config_entry.state == ConfigEntryState.LOADED
+
+    service_call = SERVICE_GET_DATA[0]
+    device_entry = device_registry.async_get_or_create(
+        config_entry_id=config_entry.entry_id,
+        identifiers={(DOMAIN, appliance.haId)},
+    )
+
+    service_call["service_data"]["device_id"] = device_entry.id
+
+    appliance.get.side_effect = [HomeConnectError]
+
+    with pytest.raises(HomeConnectError):
+        _ = await hass.services.async_call(**service_call)

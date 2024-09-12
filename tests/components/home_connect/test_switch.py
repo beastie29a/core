@@ -95,6 +95,17 @@ async def test_switches(
             {
                 BSH_POWER_STATE: {"value": ""},
                 BSH_OPERATION_STATE: {
+                    "value": "BSH.Common.EnumType.OperationState.Ready"
+                },
+            },
+            SERVICE_TURN_ON,
+            STATE_ON,
+        ),
+        (
+            "switch.washer_power",
+            {
+                BSH_POWER_STATE: {"value": ""},
+                BSH_OPERATION_STATE: {
                     "value": "BSH.Common.EnumType.OperationState.Inactive"
                 },
             },
