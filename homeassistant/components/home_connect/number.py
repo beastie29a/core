@@ -106,7 +106,11 @@ async def async_setup_entry(
         entities.extend(
             HomeConnectNumber(
                 device=device_dict[CONF_DEVICE],
-                coordinator=coordinator,
+                coordinator=coordinator.init_entity(
+                    device=device_dict[CONF_DEVICE],
+                    entity_unique_id=f"{device_dict[CONF_DEVICE].appliance.haId}-{description.key}",
+                    endpoint=f"/settings/{description.setting_key}",
+                ),
                 entity_description=description,
             )
             for device_dict in hc_api.devices
@@ -136,6 +140,18 @@ class HomeConnectNumber(HomeConnectEntity, NumberEntity):
         super().__init__(
             device=device, desc=self.entity_description.key, coordinator=coordinator
         )
+        self._attr_min_value = coordinator.data[self.device.device_id][
+            self.unique_id
+        ].constraints.min
+        self._attr_max_value = coordinator.data[self.device.device_id][
+            self.unique_id
+        ].constraints.max
+        self._attr_step = coordinator.data[self.device.device_id][
+            self.unique_id
+        ].constraints.stepsize
+        self.native_unit_of_measurement = coordinator.data[self.device.device_id][
+            self.unique_id
+        ].unit
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""

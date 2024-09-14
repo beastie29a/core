@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+from typing import Self
 
 from requests import HTTPError
 
@@ -14,6 +15,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .api import ConfigEntryAuth, HomeConnectDevice
 from .const import DOMAIN
 from .exceptions import HomeConnectAPIException, HomeConnectAuthException
+from .models import StatusData
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -70,10 +72,12 @@ class HomeConnectDataUpdateCoordinator(DataUpdateCoordinator):
                     )
                     # Store cached entity_regitry data to lessen the amount of API calls.
                     entity_cache[device.device_id] = {
-                        entity.unique_id: {
-                            "capabilities": entity.capabilities,
-                            "unit_of_measurement": entity.unit_of_measurement,
-                        }
+                        entity.unique_id: StatusData(
+                            key="",
+                            value="",
+                            unit=entity.unit_of_measurement,
+                            constraints=entity.capabilities,
+                        )
                         for entity in entities
                     }
         except HomeConnectAuthException as err:
@@ -82,3 +86,29 @@ class HomeConnectDataUpdateCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"Error communicating with API: {err}") from err
         else:
             return entity_cache
+
+    def init_entity(
+        self, device: HomeConnectDevice, entity_unique_id: str, endpoint: str
+    ) -> Self:
+        """Initialize the entity when it is first created."""
+        entity_entry = self.data.get(device.device_id, {}).get(entity_unique_id)
+        if entity_entry is not None:
+            _LOGGER.debug(
+                "Entity cache entry found, will not make API call to: %s", endpoint
+            )
+            return self
+        try:
+            self.data[device.device_id][entity_unique_id] = StatusData(
+                **device.appliance.get(endpoint)
+            )
+            _LOGGER.debug(
+                "Initialized cached entry: %s with data: %s",
+                entity_unique_id,
+                self.data[device.device_id][entity_unique_id],
+            )
+        except HomeConnectAPIException as err:
+            _LOGGER.error(
+                "Error fetching StatusData for: %s, %s", entity_unique_id, err
+            )
+
+        return self

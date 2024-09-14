@@ -1,11 +1,15 @@
 """Models based off https://apiclient.home-connect.com/hcsdk.yaml."""
 
-from dataclasses import dataclass, field
+from collections.abc import Mapping
+from dataclasses import InitVar, dataclass, field
 from typing import Any
 
 
 @dataclass
-class Constraints:  # noqa: D101
+class StatusConstraints:
+    """Constraints of the status, e.g. step size, enumeration values, etc."""
+
+    access: str | None = None
     min: int | None = None
     max: int | None = None
     stepsize: int | None = None
@@ -13,19 +17,26 @@ class Constraints:  # noqa: D101
     displayvalues: list[str] | None = None
     default: dict[str, Any] | None = None
 
+    # Aliases from Home Assistant variables
+    step: InitVar[int] = None
+
+    # Other HA attributes not used
+    mode: str | None = None
+
+    def __post_init__(self, step: int | None) -> None:
+        """Alias for stepsize class attribute."""
+        if step is not None:
+            self.stepsize = step
+
 
 @dataclass
-class StatusConstraints(Constraints):
-    """Constraints of the status, e.g. step size, enumeration values, etc."""
-
-    access: str | None = None
-
-
-@dataclass
-class Option:  # noqa: D101
+class StatusData:  # noqa: D101
     key: str
-    value: dict[str, Any]
-    constraints: StatusConstraints = field(default_factory=StatusConstraints)
+    value: str | int | float | bool
+    type: str | None = None
+    constraints: StatusConstraints | Mapping[str, Any] | None = field(
+        default_factory=StatusConstraints
+    )
     name: str | None = None
     displayvalue: str | None = None
     unit: str | None = None
@@ -34,13 +45,3 @@ class Option:  # noqa: D101
         """Reassign constraints from dict to StatusConstraints."""
         if isinstance(self.constraints, dict):
             self.constraints = StatusConstraints(**self.constraints)
-
-
-@dataclass
-class StatusData(Option):  # noqa: D101
-    type: str | None = None
-
-
-@dataclass
-class Status:  # noqa: D101
-    data: StatusData
