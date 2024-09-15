@@ -19,14 +19,18 @@ class StatusConstraints:
 
     # Aliases from Home Assistant variables
     step: InitVar[int] = None
+    options: InitVar[list[str]] = None
 
     # Other HA attributes not used
     mode: str | None = None
+    supported_color_modes: Any | None = None
 
-    def __post_init__(self, step: int | None) -> None:
+    def __post_init__(self, step: int | None, options: list[str] | None) -> None:
         """Alias for stepsize class attribute."""
         if step is not None:
             self.stepsize = step
+        if options is not None:
+            self.allowedvalues = options
 
 
 @dataclass

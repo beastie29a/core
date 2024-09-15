@@ -117,6 +117,16 @@ async def test_bianry_sensors_fridge_door_states(
     get_appliances: MagicMock,
 ) -> None:
     """Tests for Home Connect Fridge appliance door states."""
+    MOCK_GET_SETTINGS_RESPONSES = {
+        setting["key"]: setting
+        for setting in load_json_object_fixture("home_connect/settings.json")
+        .get(appliance.name)
+        .get("data")
+        .get("settings")
+    }
+    appliance.get.side_effect = lambda key: MOCK_GET_SETTINGS_RESPONSES[
+        key.split("/")[-1]
+    ]
     appliance.status.update(
         HomeConnectAPI.json2dict(
             load_json_object_fixture("home_connect/status.json")["data"]["status"]

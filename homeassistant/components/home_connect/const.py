@@ -2,8 +2,8 @@
 
 DOMAIN = "home_connect"
 
-OAUTH2_AUTHORIZE = "https://api.home-connect.com/security/oauth/authorize"
-OAUTH2_TOKEN = "https://api.home-connect.com/security/oauth/token"
+OAUTH2_AUTHORIZE = "https://simulator.home-connect.com/security/oauth/authorize"
+OAUTH2_TOKEN = "https://simulator.home-connect.com/security/oauth/token"
 
 BSH_POWER_STATE = "BSH.Common.Setting.PowerState"
 BSH_POWER_ON = "BSH.Common.EnumType.PowerState.On"
@@ -14,15 +14,12 @@ BSH_REMOTE_CONTROL_ACTIVATION_STATE = "BSH.Common.Status.RemoteControlActive"
 BSH_REMOTE_START_ALLOWANCE_STATE = "BSH.Common.Status.RemoteControlStartAllowed"
 BSH_CHILD_LOCK_STATE = "BSH.Common.Setting.ChildLock"
 
-<<<<<<< HEAD
 BSH_EVENT_PRESENT_STATE_PRESENT = "BSH.Common.EnumType.EventPresentState.Present"
 BSH_EVENT_PRESENT_STATE_CONFIRMED = "BSH.Common.EnumType.EventPresentState.Confirmed"
 BSH_EVENT_PRESENT_STATE_OFF = "BSH.Common.EnumType.EventPresentState.Off"
-=======
 BSH_TEMPERATURE_UNIT = "BSH.Common.Setting.TemperatureUnit"
 BSH_TEMPERATURE_UNIT_CELSIUS = "BSH.Common.EnumType.TemperatureUnit.Celsius"
 BSH_TEMPERATURE_UNIT_FAHRENHEIT = "BSH.Common.EnumType.TemperatureUnit.Fahrenheit"
->>>>>>> 6051f2bf4af (Add Home Connect setpoint temp entities)
 
 BSH_OPERATION_STATE = "BSH.Common.Status.OperationState"
 BSH_OPERATION_STATE_RUN = "BSH.Common.EnumType.OperationState.Run"
@@ -37,6 +34,14 @@ COFFEE_EVENT_BEAN_CONTAINER_EMPTY = (
 )
 COFFEE_EVENT_WATER_TANK_EMPTY = "ConsumerProducts.CoffeeMaker.Event.WaterTankEmpty"
 COFFEE_EVENT_DRIP_TRAY_FULL = "ConsumerProducts.CoffeeMaker.Event.DripTrayFull"
+REFRIGERATION_INTERNAL_LIGHT_POWER = "Refrigeration.Common.Setting.Light.Internal.Power"
+REFRIGERATION_INTERNAL_LIGHT_BRIGHTNESS = (
+    "Refrigeration.Common.Setting.Light.Internal.Brightness"
+)
+REFRIGERATION_EXTERNAL_LIGHT_POWER = "Refrigeration.Common.Setting.Light.External.Power"
+REFRIGERATION_EXTERNAL_LIGHT_BRIGHTNESS = (
+    "Refrigeration.Common.Setting.Light.External.Brightness"
+)
 
 REFRIGERATION_SUPERMODEFREEZER = "Refrigeration.FridgeFreezer.Setting.SuperModeFreezer"
 REFRIGERATION_SUPERMODEREFRIGERATOR = (
@@ -44,7 +49,6 @@ REFRIGERATION_SUPERMODEREFRIGERATOR = (
 )
 REFRIGERATION_DISPENSER = "Refrigeration.Common.Setting.Dispenser.Enabled"
 
-<<<<<<< HEAD
 REFRIGERATION_STATUS_DOOR_CHILLER = "Refrigeration.Common.Status.Door.ChillerCommon"
 REFRIGERATION_STATUS_DOOR_FREEZER = "Refrigeration.Common.Status.Door.Freezer"
 REFRIGERATION_STATUS_DOOR_REFRIGERATOR = "Refrigeration.Common.Status.Door.Refrigerator"
@@ -62,7 +66,6 @@ REFRIGERATION_EVENT_TEMP_ALARM_FREEZER = (
     "Refrigeration.FridgeFreezer.Event.TemperatureAlarmFreezer"
 )
 
-=======
 REFRIGERATION_CHILLERLEFT_SETPOINTTEMPERATURE = (
     "Refrigeration.Common.Setting.ChillerLeft.SetpointTemperature"
 )
@@ -85,7 +88,6 @@ REFRIGERATION_BOTTLECOOLER_SETPOINTTEMPERATURE = (
 REFRIGERATION_WINECOMPARTMENT_SETPOINTTEMPERATURE = (
     "Refrigeration.Common.Setting.WineCompartment.SetpointTemperature"
 )
->>>>>>> 6051f2bf4af (Add Home Connect setpoint temp entities)
 
 BSH_AMBIENT_LIGHT_ENABLED = "BSH.Common.Setting.AmbientLightEnabled"
 BSH_AMBIENT_LIGHT_BRIGHTNESS = "BSH.Common.Setting.AmbientLightBrightness"

@@ -30,6 +30,7 @@ from .const import (
     REFRIGERATION_STATUS_DOOR_OPEN,
     REFRIGERATION_STATUS_DOOR_REFRIGERATOR,
 )
+from .coordinator import HomeConnectDataUpdateCoordinator
 from .entity import HomeConnectEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -75,14 +76,20 @@ async def async_setup_entry(
     def get_entities():
         entities = []
         hc_api = hass.data[DOMAIN][config_entry.entry_id]
+        coordinator: HomeConnectDataUpdateCoordinator = config_entry.runtime_data
         for device_dict in hc_api.devices:
             entity_dicts = device_dict.get(CONF_ENTITIES, {}).get("binary_sensor", [])
-            entities += [HomeConnectBinarySensor(**d) for d in entity_dicts]
+            entities += [
+                HomeConnectBinarySensor(coordinator=coordinator, **d)
+                for d in entity_dicts
+            ]
             device: HomeConnectDevice = device_dict[ATTR_DEVICE]
             # Auto-discover entities
             entities.extend(
                 HomeConnectFridgeDoorBinarySensor(
-                    device=device, entity_description=description
+                    device=device,
+                    entity_description=description,
+                    coordinator=coordinator,
                 )
                 for description in BINARY_SENSORS
                 if description.state_key in device.appliance.status
@@ -95,9 +102,16 @@ async def async_setup_entry(
 class HomeConnectBinarySensor(HomeConnectEntity, BinarySensorEntity):
     """Binary sensor for Home Connect."""
 
-    def __init__(self, device, desc, sensor_type, device_class=None):
+    def __init__(
+        self,
+        coordinator: HomeConnectDataUpdateCoordinator,
+        device,
+        desc,
+        sensor_type,
+        device_class=None,
+    ):
         """Initialize the entity."""
-        super().__init__(device, desc)
+        super().__init__(device, desc, coordinator=coordinator)
         self._state = None
         self._device_class = device_class
         self._type = sensor_type
@@ -155,10 +169,11 @@ class HomeConnectFridgeDoorBinarySensor(HomeConnectEntity, BinarySensorEntity):
         self,
         device: HomeConnectDevice,
         entity_description: HomeConnectBinarySensorEntityDescription,
+        coordinator: HomeConnectDataUpdateCoordinator,
     ) -> None:
         """Initialize the entity."""
         self.entity_description = entity_description
-        super().__init__(device, entity_description.key)
+        super().__init__(device, entity_description.key, coordinator=coordinator)
 
     async def async_update(self) -> None:
         """Update the binary sensor's status."""

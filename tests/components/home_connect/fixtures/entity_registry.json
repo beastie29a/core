@@ -745,6 +745,54 @@
         "orphaned_timestamp": null,
         "platform": "home_connect",
         "unique_id": "BOSCH-B36CL80SNS-68A40E3F0937-InternalLight"
+      },
+      {
+        "aliases": [],
+        "area_id": null,
+        "categories": {},
+        "capabilities": {
+          "min_color_temp_kelvin": 2000,
+          "max_color_temp_kelvin": 6535,
+          "min_mireds": 153,
+          "max_mireds": 500,
+          "effect_list": [
+            "blink",
+            "breathe",
+            "okay",
+            "channel_change",
+            "candle",
+            "fireplace",
+            "colorloop",
+            "finish_effect",
+            "stop_effect",
+            "stop_hue_effect"
+          ],
+          "supported_color_modes": ["color_temp", "xy"]
+        },
+        "config_entry_id": "99704df69195c12b39dcbfc7ad562493",
+        "created_at": "2024-09-13T23:23:19.198606+00:00",
+        "device_class": null,
+        "device_id": "e5a5225198dee7dff599e5253572146e",
+        "disabled_by": null,
+        "entity_category": null,
+        "entity_id": "light.0x001788010db85987",
+        "hidden_by": null,
+        "icon": null,
+        "id": "10609f0e910e55fd76144590923fd10c",
+        "has_entity_name": true,
+        "labels": [],
+        "modified_at": "2024-09-13T23:23:19.199041+00:00",
+        "name": null,
+        "options": { "conversation": { "should_expose": true } },
+        "original_device_class": null,
+        "original_icon": null,
+        "original_name": null,
+        "platform": "mqtt",
+        "supported_features": 44,
+        "translation_key": null,
+        "unique_id": "0x001788010db85987_light_zigbee",
+        "previous_unique_id": null,
+        "unit_of_measurement": null
       }
     ]
   }

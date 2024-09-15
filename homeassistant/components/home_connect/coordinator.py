@@ -61,7 +61,7 @@ class HomeConnectDataUpdateCoordinator(DataUpdateCoordinator):
 
         entity_cache = {}
         try:
-            async with asyncio.timeout(10):
+            async with asyncio.timeout(600):
                 for device_dict in self.hc_api.devices:
                     device: HomeConnectDevice = device_dict[CONF_DEVICE]
                     await self.hass.async_add_executor_job(device.initialize)
@@ -80,6 +80,7 @@ class HomeConnectDataUpdateCoordinator(DataUpdateCoordinator):
                         )
                         for entity in entities
                     }
+                    print(entity_cache)
         except HomeConnectAuthException as err:
             raise ConfigEntryAuthFailed from err
         except HomeConnectAPIException as err:
@@ -93,11 +94,13 @@ class HomeConnectDataUpdateCoordinator(DataUpdateCoordinator):
         """Initialize the entity when it is first created."""
         entity_entry = self.data.get(device.device_id, {}).get(entity_unique_id)
         if entity_entry is not None:
+            print(entity_entry)
             _LOGGER.debug(
                 "Entity cache entry found, will not make API call to: %s", endpoint
             )
             return self
         try:
+            print(endpoint)
             self.data[device.device_id][entity_unique_id] = StatusData(
                 **device.appliance.get(endpoint)
             )

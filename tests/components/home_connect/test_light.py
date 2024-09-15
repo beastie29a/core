@@ -31,6 +31,7 @@ from tests.common import MockConfigEntry, load_json_object_fixture
 
 TEST_HC_APP = "Hood"
 
+
 SETTINGS_STATUS = {
     setting.pop("key"): setting
     for setting in load_json_object_fixture("home_connect/settings.json")
@@ -148,6 +149,17 @@ async def test_light(
             STATE_ON,
             "Hood",
         ),
+        (
+            "light.fridgefreezer_internal_light",
+            {
+                "Refrigeration.Common.Setting.Light.Internal.Power": {"value": True},
+                "Refrigeration.Common.Setting.Light.Internal.Brightness": {"value": 70},
+            },
+            SERVICE_TURN_ON,
+            {},
+            STATE_ON,
+            "FridgeFreezer",
+        ),
     ],
     indirect=["appliance"],
 )
@@ -166,7 +178,25 @@ async def test_light_functionality(
     get_appliances: MagicMock,
 ) -> None:
     """Test light functionality."""
-    appliance.status.update(SETTINGS_STATUS)
+    MOCK_GET_SETTINGS_RESPONSES = {
+        setting["key"]: setting
+        for setting in load_json_object_fixture("home_connect/settings.json")
+        .get(appliance.name)
+        .get("data")
+        .get("settings")
+    }
+    appliance.get.side_effect = lambda key: MOCK_GET_SETTINGS_RESPONSES[
+        key.split("/")[-1]
+    ]
+    appliance.status.update(
+        {
+            setting.pop("key"): setting
+            for setting in load_json_object_fixture("home_connect/settings.json")
+            .get(appliance.name)
+            .get("data")
+            .get("settings")
+        }
+    )
     get_appliances.return_value = [appliance]
 
     assert config_entry.state == ConfigEntryState.NOT_LOADED
@@ -182,6 +212,13 @@ async def test_light_functionality(
         blocking=True,
     )
     assert hass.states.is_state(entity_id, state)
+
+    assert await hass.config_entries.async_unload(config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert config_entry.state == ConfigEntryState.NOT_LOADED
+    assert await integration_setup()
+    assert config_entry.state == ConfigEntryState.LOADED
 
 
 @pytest.mark.parametrize(
@@ -264,7 +301,7 @@ async def test_light_functionality(
     ],
     indirect=["problematic_appliance"],
 )
-async def test_switch_exception_handling(
+async def test_light_exception_handling(
     entity_id: str,
     status: dict,
     service: str,
@@ -280,6 +317,9 @@ async def test_switch_exception_handling(
     get_appliances: MagicMock,
 ) -> None:
     """Test light exception handling."""
+    # problematic_appliance.get.side_effect = lambda key: MOCK_GET_SETTINGS_RESPONSES[
+    #     key.split("/")[-1]
+    # ]
     problematic_appliance.status.update(SETTINGS_STATUS)
     problematic_appliance.set_setting.side_effect = attr_side_effect
     get_appliances.return_value = [problematic_appliance]

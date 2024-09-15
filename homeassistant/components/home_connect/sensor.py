@@ -33,6 +33,7 @@ from .const import (
     REFRIGERATION_EVENT_DOOR_ALARM_REFRIGERATOR,
     REFRIGERATION_EVENT_TEMP_ALARM_FREEZER,
 )
+from .coordinator import HomeConnectDataUpdateCoordinator
 from .entity import HomeConnectEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -101,15 +102,17 @@ async def async_setup_entry(
         """Get a list of entities."""
         entities = []
         hc_api: ConfigEntryAuth = hass.data[DOMAIN][config_entry.entry_id]
+        coordinator: HomeConnectDataUpdateCoordinator = config_entry.runtime_data
         for device_dict in hc_api.devices:
             entity_dicts = device_dict.get(CONF_ENTITIES, {}).get("sensor", [])
-            entities += [HomeConnectSensor(**d) for d in entity_dicts]
+            entities += [
+                HomeConnectSensor(coordinator=coordinator, **d) for d in entity_dicts
+            ]
             device: HomeConnectDevice = device_dict[ATTR_DEVICE]
             # Auto-discover entities
             entities.extend(
                 HomeConnectAlarmSensor(
-                    device,
-                    entity_description=description,
+                    device, entity_description=description, coordinator=coordinator
                 )
                 for description in SENSORS
                 if device.appliance.type in description.appliance_types
@@ -122,9 +125,19 @@ async def async_setup_entry(
 class HomeConnectSensor(HomeConnectEntity, SensorEntity):
     """Sensor class for Home Connect."""
 
-    def __init__(self, device, desc, key, unit, icon, device_class, sign=1):
+    def __init__(
+        self,
+        coordinator: HomeConnectDataUpdateCoordinator,
+        device,
+        desc,
+        key,
+        unit,
+        icon,
+        device_class,
+        sign=1,
+    ):
         """Initialize the entity."""
-        super().__init__(device, desc)
+        super().__init__(device, desc, coordinator=coordinator)
         self._key = key
         self._sign = sign
         self._attr_native_unit_of_measurement = unit
@@ -188,10 +201,11 @@ class HomeConnectAlarmSensor(HomeConnectEntity, SensorEntity):
         self,
         device: HomeConnectDevice,
         entity_description: HomeConnectSensorEntityDescription,
+        coordinator: HomeConnectDataUpdateCoordinator,
     ) -> None:
         """Initialize the entity."""
         self.entity_description = entity_description
-        super().__init__(device, self.entity_description.key)
+        super().__init__(device, self.entity_description.key, coordinator)
 
     @property
     def available(self) -> bool:

@@ -54,7 +54,9 @@ class ConfigEntryAuth(homeconnect.HomeConnectAPI):
         self.session = config_entry_oauth2_flow.OAuth2Session(
             hass, config_entry, implementation
         )
-        super().__init__(self.session.token)
+        super().__init__(
+            self.session.token, api_url="https://simulator.home-connect.com"
+        )
         self.devices: list[dict[str, Any]] = []
 
     def refresh_tokens(self) -> dict:

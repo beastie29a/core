@@ -1,4 +1,64 @@
 {
+  "CoffeeMaker": {
+    "data": {
+      "settings": [
+        {
+          "key": "BSH.Common.Setting.PowerState",
+          "value": "BSH.Common.EnumType.PowerState.On",
+          "type": "BSH.Common.EnumType.PowerState",
+          "constraints": {
+            "allowedvalues": [
+              "BSH.Common.EnumType.PowerState.On",
+              "BSH.Common.EnumType.PowerState.Standby"
+            ],
+            "access": "readWrite"
+          }
+        },
+        {
+          "key": "BSH.Common.Setting.TemperatureUnit",
+          "value": "BSH.Common.EnumType.TemperatureUnit.Celsius",
+          "type": "BSH.Common.EnumType.TemperatureUnit",
+          "constraints": {
+            "allowedvalues": [
+              "BSH.Common.EnumType.TemperatureUnit.Celsius",
+              "BSH.Common.EnumType.TemperatureUnit.Fahrenheit"
+            ],
+            "access": "readWrite"
+          }
+        },
+        {
+          "key": "BSH.Common.Setting.LiquidVolumeUnit",
+          "value": "BSH.Common.EnumType.LiquidVolumeUnit.MilliLiter",
+          "type": "BSH.Common.EnumType.LiquidVolumeUnit",
+          "constraints": {
+            "allowedvalues": [
+              "BSH.Common.EnumType.LiquidVolumeUnit.FluidOunces",
+              "BSH.Common.EnumType.LiquidVolumeUnit.MilliLiter"
+            ],
+            "access": "readWrite"
+          }
+        },
+        {
+          "key": "ConsumerProducts.CoffeeMaker.Setting.CupWarmer",
+          "value": false,
+          "type": "Boolean",
+          "constraints": {
+            "default": false,
+            "access": "readWrite"
+          }
+        },
+        {
+          "key": "BSH.Common.Setting.ChildLock",
+          "value": false,
+          "type": "Boolean",
+          "constraints": {
+            "default": false,
+            "access": "readWrite"
+          }
+        }
+      ]
+    }
+  },
   "Dishwasher": {
     "data": {
       "settings": [
@@ -48,18 +108,39 @@
           "key": "Cooking.Common.Setting.LightingBrightness",
           "value": 70,
           "unit": "%",
-          "type": "Double"
+          "type": "Double",
+          "constraints": {
+            "min": 10,
+            "max": 100,
+            "access": "readWrite"
+          }
         },
         {
           "key": "Cooking.Hood.Setting.ColorTemperaturePercent",
           "value": 70,
           "unit": "%",
-          "type": "Double"
+          "type": "Double",
+          "constraints": {
+            "min": 0,
+            "max": 100,
+            "access": "readWrite"
+          }
         },
         {
           "key": "BSH.Common.Setting.ColorTemperature",
           "value": "Cooking.Hood.EnumType.ColorTemperature.warmToNeutral",
-          "type": "BSH.Common.EnumType.ColorTemperature"
+          "type": "BSH.Common.EnumType.ColorTemperature",
+          "constraints": {
+            "allowedvalues": [
+              "Cooking.Hood.EnumType.ColorTemperature.custom",
+              "Cooking.Hood.EnumType.ColorTemperature.warm",
+              "Cooking.Hood.EnumType.ColorTemperature.warmToNeutral",
+              "Cooking.Hood.EnumType.ColorTemperature.neutral",
+              "Cooking.Hood.EnumType.ColorTemperature.neutralToCold",
+              "Cooking.Hood.EnumType.ColorTemperature.cold"
+            ],
+            "access": "readWrite"
+          }
         },
         {
           "key": "BSH.Common.Setting.AmbientLightEnabled",
@@ -70,12 +151,26 @@
           "key": "BSH.Common.Setting.AmbientLightBrightness",
           "value": 70,
           "unit": "%",
-          "type": "Double"
+          "type": "Double",
+          "constraints": {
+            "min": 10,
+            "max": 100,
+            "access": "readWrite"
+          }
         },
         {
           "key": "BSH.Common.Setting.AmbientLightColor",
           "value": "BSH.Common.EnumType.AmbientLightColor.Color43",
-          "type": "BSH.Common.EnumType.AmbientLightColor"
+          "type": "BSH.Common.EnumType.AmbientLightColor",
+          "constraints": {
+            "allowedvalues": [
+              "BSH.Common.EnumType.AmbientLightColor.CustomColor",
+              "BSH.Common.EnumType.AmbientLightColor.Color1",
+              "BSH.Common.EnumType.AmbientLightColor.Color2",
+              "BSH.Common.EnumType.AmbientLightColor.Color99"
+            ],
+            "access": "readWrite"
+          }
         },
         {
           "key": "BSH.Common.Setting.AmbientLightCustomColor",
@@ -92,6 +187,15 @@
           "key": "BSH.Common.Setting.PowerState",
           "value": "BSH.Common.EnumType.PowerState.On",
           "type": "BSH.Common.EnumType.PowerState"
+        },
+        {
+          "key": "BSH.Common.Setting.AlarmClock",
+          "constraints": {
+            "access": "readWrite"
+          },
+          "unit": "seconds",
+          "type": "Int",
+          "value": 0
         }
       ]
     }
@@ -108,6 +212,32 @@
           "key": "BSH.Common.Setting.ChildLock",
           "value": false,
           "type": "Boolean"
+        },
+        {
+          "key": "LaundryCare.Washer.Setting.IDos1BaseLevel",
+          "value": 97,
+          "unit": "ml",
+          "type": "Int",
+          "constraints": {
+            "min": 5,
+            "max": 200,
+            "stepsize": 1,
+            "default": 36,
+            "access": "readWrite"
+          }
+        },
+        {
+          "key": "LaundryCare.Washer.Setting.IDos2BaseLevel",
+          "value": 97,
+          "unit": "ml",
+          "type": "Int",
+          "constraints": {
+            "min": 5,
+            "max": 200,
+            "stepsize": 1,
+            "default": 75,
+            "access": "readWrite"
+          }
         }
       ]
     }
@@ -193,6 +323,38 @@
             "max": 20,
             "access": "readWrite"
           }
+        },
+        {
+          "key": "Refrigeration.Common.Setting.Light.Internal.Brightness",
+          "value": 70,
+          "unit": "%",
+          "type": "Double",
+          "constraints": {
+            "min": 0,
+            "max": 100,
+            "access": "readWrite"
+          }
+        },
+        {
+          "key": "Refrigeration.Common.Setting.Light.Internal.Power",
+          "value": true,
+          "type": "Boolean"
+        },
+        {
+          "key": "Refrigeration.Common.Setting.Light.External.Brightness",
+          "value": 70,
+          "unit": "%",
+          "type": "Double",
+          "constraints": {
+            "min": 0,
+            "max": 100,
+            "access": "readWrite"
+          }
+        },
+        {
+          "key": "Refrigeration.Common.Setting.Light.External.Power",
+          "value": true,
+          "type": "Boolean"
         }
       ]
     }
